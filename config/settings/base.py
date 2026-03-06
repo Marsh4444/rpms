@@ -32,6 +32,10 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(','
 # Application definition
 
 INSTALLED_APPS = [
+    #my apps
+    'apps.users',
+
+    #default Django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -125,3 +129,12 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# ============================================================================
+# CUSTOM USER MODEL
+# ============================================================================
+
+AUTH_USER_MODEL = 'users.User'
+# Tell Django to use our custom User model instead of the default one
+# Format: 'app_name.ModelName'
+# This MUST be set before migrations
