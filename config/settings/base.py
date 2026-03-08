@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     #my apps
     'apps.users',
     'apps.properties',
+    'apps.leases',
 
 
     #default Django apps
