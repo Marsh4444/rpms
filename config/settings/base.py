@@ -34,6 +34,8 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(','
 INSTALLED_APPS = [
     #my apps
     'apps.users',
+    'apps.properties',
+
 
     #default Django apps
     'django.contrib.admin',
