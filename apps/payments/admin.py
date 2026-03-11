@@ -79,7 +79,7 @@ class PaymentAdmin(admin.ModelAdmin):
     # Newest payments first
     
     # How many payments per page
-    list_per_page = 50
+    list_per_page = 45
     
     # Date hierarchy navigation
     date_hierarchy = 'payment_date'
