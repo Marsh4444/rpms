@@ -143,3 +143,11 @@ AUTH_USER_MODEL = 'users.User'
 # Tell Django to use our custom User model instead of the default one
 # Format: 'app_name.ModelName'
 # This MUST be set before migrations
+
+# ============================================================================
+# AUTHENTICATION SETTINGS
+# ============================================================================
+LOGIN_URL = 'login'  # URL name for login view
+LOGIN_REDIRECT_URL = 'home'  # URL name to redirect after login
+
+#

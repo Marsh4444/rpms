@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register - RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- HEADER -->
+        <div class="auth-header">
+            <h1 class="auth-title">Create Account</h1>
+            <p class="auth-subtitle">Join RPMS to manage your rental properties</p>
+        </div>
+        
+        <!-- ERROR MESSAGES -->
+        {% if form.errors %}
+        <div class="form-errors">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <!-- REGISTER FORM -->
+        <form method="post" action="{% url 'register' %}">
+            {% csrf_token %}
+            
+            <!-- Username Field -->
+            <div class="form-group">
+                <label for="id_username" class="form-label">Username</label>
+                <input 
+                    type="text" 
+                    name="username" 
+                    id="id_username" 
+                    class="form-input" 
+                    placeholder="Choose a username"
+                    value="{{ form.username.value|default:'' }}"
+                    required
+                    autofocus
+                >
+            </div>
+            
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="id_email" class="form-label">Email</label>
+                <input 
+                    type="email" 
+                    name="email" 
+                    id="id_email" 
+                    class="form-input" 
+                    placeholder="Enter your email"
+                    value="{{ form.email.value|default:'' }}"
+                    required
+                >
+            </div>
+            
+            <!-- First Name Field -->
+            <div class="form-group">
+                <label for="id_first_name" class="form-label">First Name</label>
+                <input 
+                    type="text" 
+                    name="first_name" 
+                    id="id_first_name" 
+                    class="form-input" 
+                    placeholder="Enter your first name"
+                    value="{{ form.first_name.value|default:'' }}"
+                >
+            </div>
+            
+            <!-- Last Name Field -->
+            <div class="form-group">
+                <label for="id_last_name" class="form-label">Last Name</label>
+                <input 
+                    type="text" 
+                    name="last_name" 
+                    id="id_last_name" 
+                    class="form-input" 
+                    placeholder="Enter your last name"
+                    value="{{ form.last_name.value|default:'' }}"
+                >
+            </div>
+            
+            <!-- Role Field -->
+            <div class="form-group">
+                <label for="id_role" class="form-label">I am a</label>
+                <select 
+                    name="role" 
+                    id="id_role" 
+                    class="form-select"
+                    required
+                >
+                    <option value="">Select your role...</option>
+                    <option value="LANDLORD" {% if form.role.value == 'LANDLORD' %}selected{% endif %}>Landlord (Property Owner)</option>
+                    <option value="MANAGER" {% if form.role.value == 'MANAGER' %}selected{% endif %}>Manager (Property Manager)</option>
+                    <option value="TENANT" {% if form.role.value == 'TENANT' %}selected{% endif %}>Tenant (Renter)</option>
+                </select>
+            </div>
+            
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="id_password1" class="form-label">Password</label>
+                <input 
+                    type="password" 
+                    name="password1" 
+                    id="id_password1" 
+                    class="form-input" 
+                    placeholder="Create a strong password"
+                    required
+                >
+            </div>
+            
+            <!-- Confirm Password Field -->
+            <div class="form-group">
+                <label for="id_password2" class="form-label">Confirm Password</label>
+                <input 
+                    type="password" 
+                    name="password2" 
+                    id="id_password2" 
+                    class="form-input" 
+                    placeholder="Re-enter your password"
+                    required
+                >
+            </div>
+            
+            <!-- Submit Button -->
+            <button type="submit" class="btn-submit">
+                Create Account
+            </button>
+        </form>
+        
+        <!-- FOOTER -->
+        <div class="auth-footer">
+            <p class="auth-footer-text">
+                Already have an account? 
+                <a href="{% url 'login' %}" class="auth-footer-link">Sign in here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

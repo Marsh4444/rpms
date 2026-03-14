@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- HEADER -->
+        <div class="auth-header">
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">Sign in to your account to continue</p>
+        </div>
+        
+        <!-- ERROR MESSAGES -->
+        {% if form.errors %}
+        <div class="form-errors">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <!-- LOGIN FORM -->
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            
+            <!-- Username Field -->
+            <div class="form-group">
+                <label for="id_username" class="form-label">Username</label>
+                <input 
+                    type="text" 
+                    name="username" 
+                    id="id_username" 
+                    class="form-input" 
+                    placeholder="Enter your username"
+                    required
+                    autofocus
+                >
+            </div>
+            
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="id_password" class="form-label">Password</label>
+                <input 
+                    type="password" 
+                    name="password" 
+                    id="id_password" 
+                    class="form-input" 
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
+            
+            <!-- Submit Button -->
+            <button type="submit" class="btn-submit">
+                Sign In
+            </button>
+        </form>
+        
+        <!-- FOOTER -->
+        <div class="auth-footer">
+            <p class="auth-footer-text">
+                Don't have an account? 
+                <a href="{% url 'register' %}" class="auth-footer-link">Register here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

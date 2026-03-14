@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - RPMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        text-align: center;
+        padding: 5rem 2rem;
+    }
+    
+    .hero-title {
+        font-family: 'Syne', sans-serif;
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--text);
+        margin-bottom: 1rem;
+        letter-spacing: 0.02em;
+    }
+    
+    .hero-accent {
+        color: var(--accent);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-top: 4rem;
+    }
+    
+    .feature-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 2rem;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    
+    .feature-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-4px);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-title {
+        font-family: 'Syne', sans-serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+    }
+    
+    .feature-text {
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1 class="hero-title">
+        Manage Your Rentals with <span class="hero-accent">RPMS</span>
+    </h1>
+    <p class="hero-subtitle">
+        A complete property management system for landlords, managers, and tenants. 
+        Track leases, collect payments, manage maintenance requests—all in one place.
+    </p>
+    
+    <div class="hero-buttons">
+        <a href="{% url 'register' %}" class="btn btn-primary">Get Started Free</a>
+        <a href="{% url 'login' %}" class="btn btn-secondary">Sign In</a>
+    </div>
+</div>
+
+<div class="features">
+    <div class="feature-card">
+        <div class="feature-icon">🏢</div>
+        <h3 class="feature-title">Property Management</h3>
+        <p class="feature-text">
+            Organize unlimited properties and units. Track occupancy rates, 
+            rental income, and property details all from your dashboard.
+        </p>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">📄</div>
+        <h3 class="feature-title">Lease Tracking</h3>
+        <p class="feature-text">
+            Create and manage leases with automatic validation. Never double-book 
+            units or miss lease expiration dates again.
+        </p>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3 class="feature-title">Payment Management</h3>
+        <p class="feature-text">
+            Record rent payments with duplicate prevention. Track late payments, 
+            generate receipts, and monitor income effortlessly.
+        </p>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">🔧</div>
+        <h3 class="feature-title">Maintenance Requests</h3>
+        <p class="feature-text">
+            Submit and track maintenance issues with priority levels and SLA tracking. 
+            Keep tenants happy and properties well-maintained.
+        </p>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3 class="feature-title">Role-Based Access</h3>
+        <p class="feature-text">
+            Different dashboards for landlords, managers, and tenants. 
+            Everyone sees exactly what they need—nothing more, nothing less.
+        </p>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">Reports & Analytics</h3>
+        <p class="feature-text">
+            Get insights into occupancy rates, payment history, and maintenance trends. 
+            Make data-driven decisions for your properties.
+        </p>
+    </div>
+</div>
+{% endblock %}
