@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Unit - RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/properties.css' %}">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <!-- FORM TITLE -->
+        <h1 class="form-title">
+            {% if object %}
+                Edit Unit {{ object.unit_number }}
+            {% else %}
+                Add Unit to {{ property.name }}
+            {% endif %}
+        </h1>
+        
+        <!-- ERROR MESSAGES -->
+        {% if form.errors %}
+        <div class="form-errors">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <!-- UNIT FORM -->
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Unit Number and Floor (Two Columns) -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_unit_number" class="form-label">Unit Number *</label>
+                    <input 
+                        type="text" 
+                        name="unit_number" 
+                        id="id_unit_number" 
+                        class="form-input" 
+                        placeholder="e.g., 101, A-12"
+                        value="{{ form.unit_number.value|default:'' }}"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_floor" class="form-label">Floor</label>
+                    <input 
+                        type="number" 
+                        name="floor" 
+                        id="id_floor" 
+                        class="form-input" 
+                        placeholder="e.g., 0, 1, 2"
+                        value="{{ form.floor.value|default:'' }}"
+                    >
+                    <small style="color: var(--muted); font-size: 0.7rem; display: block; margin-top: 0.25rem;">
+                        0 = Ground floor, 1 = First floor, -1 = Basement
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Bedrooms and Bathrooms (Two Columns) -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_bedrooms" class="form-label">Bedrooms *</label>
+                    <input 
+                        type="number" 
+                        name="bedrooms" 
+                        id="id_bedrooms" 
+                        class="form-input" 
+                        min="0"
+                        value="{{ form.bedrooms.value|default:'1' }}"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_bathrooms" class="form-label">Bathrooms *</label>
+                    <input 
+                        type="number" 
+                        name="bathrooms" 
+                        id="id_bathrooms" 
+                        class="form-input" 
+                        step="0.5"
+                        min="0"
+                        value="{{ form.bathrooms.value|default:'1.0' }}"
+                        required
+                    >
+                    <small style="color: var(--muted); font-size: 0.7rem; display: block; margin-top: 0.25rem;">
+                        Use .5 for half baths (e.g., 1.5, 2.5)
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Square Feet -->
+            <div class="form-group">
+                <label for="id_square_feet" class="form-label">Square Feet</label>
+                <input 
+                    type="number" 
+                    name="square_feet" 
+                    id="id_square_feet" 
+                    class="form-input" 
+                    placeholder="e.g., 850"
+                    value="{{ form.square_feet.value|default:'' }}"
+                >
+            </div>
+            
+            <!-- Monthly Rent -->
+            <div class="form-group">
+                <label for="id_rent_amount" class="form-label">Monthly Rent (₦) *</label>
+                <input 
+                    type="number" 
+                    name="rent_amount" 
+                    id="id_rent_amount" 
+                    class="form-input" 
+                    step="0.01"
+                    min="0"
+                    placeholder="e.g., 120000.00"
+                    value="{{ form.rent_amount.value|default:'' }}"
+                    required
+                >
+            </div>
+            
+            <!-- Is Occupied (Only show when editing) -->
+            {% if object %}
+            <div class="form-group">
+                <label for="id_is_occupied" class="form-label">
+                    <input 
+                        type="checkbox" 
+                        name="is_occupied" 
+                        id="id_is_occupied"
+                        {% if form.is_occupied.value %}checked{% endif %}
+                    >
+                    Unit is currently occupied
+                </label>
+                <small style="color: var(--muted); font-size: 0.7rem; display: block; margin-top: 0.25rem;">
+                    This is usually set automatically by leases, but you can override it manually.
+                </small>
+            </div>
+            {% endif %}
+            
+            <!-- FORM ACTIONS -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if object %}Save Changes{% else %}Add Unit{% endif %}
+                </button>
+                <a href="{% if object %}{% url 'property_detail' object.property.pk %}{% else %}{% url 'property_detail' property.pk %}{% endif %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

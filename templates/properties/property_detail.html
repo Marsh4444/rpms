@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ property.name }} - RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/properties.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <h1 class="page-title">Property Details</h1>
+    <div class="page-actions">
+        <a href="{% url 'property_list' %}" class="btn btn-secondary">← Back to Properties</a>
+        <a href="{% url 'property_update' property.pk %}" class="btn btn-secondary">Edit Property</a>
+        <a href="{% url 'property_delete' property.pk %}" class="btn btn-secondary">Delete Property</a>
+    </div>
+</div>
+
+<!-- PROPERTY INFORMATION -->
+<div class="property-header">
+    <h2 class="property-title">{{ property.name }}</h2>
+    <p class="property-address">
+        📍 {{ property.address }}, {{ property.city }}{% if property.state %}, {{ property.state }}{% endif %}
+    </p>
+    
+    {% if property.description %}
+    <div class="property-description">
+        {{ property.description }}
+    </div>
+    {% endif %}
+    
+    <div class="property-meta">
+        <div class="property-meta-item">
+            <div class="property-meta-label">Owner</div>
+            <div class="property-meta-value">{{ property.owner.get_full_name|default:property.owner.username }}</div>
+        </div>
+        
+        {% if property.manager %}
+        <div class="property-meta-item">
+            <div class="property-meta-label">Manager</div>
+            <div class="property-meta-value">{{ property.manager.get_full_name|default:property.manager.username }}</div>
+        </div>
+        {% endif %}
+        
+        <div class="property-meta-item">
+            <div class="property-meta-label">Created</div>
+            <div class="property-meta-value">{{ property.created_at|date:"M d, Y" }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- STATISTICS -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Units</div>
+        <div class="stat-value">{{ total_units }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Occupied</div>
+        <div class="stat-value">{{ occupied_units }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Vacant</div>
+        <div class="stat-value">{{ vacant_units }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Occupancy Rate</div>
+        <div class="stat-value">{{ occupancy_rate }}%</div>
+    </div>
+</div>
+
+<!-- UNITS SECTION -->
+<div class="section-header">
+    <h3 class="section-title">Units ({{ total_units }})</h3>
+    <a href="{% url 'unit_create' property.pk %}" class="btn btn-primary">+ Add Unit</a>
+</div>
+
+{% if units %}
+    <div class="units-grid">
+        {% for unit in units %}
+        <div class="unit-card">
+            <div class="unit-info">
+                <h4 class="unit-number">Unit {{ unit.unit_number }}</h4>
+                <div class="unit-details">
+                    {% if unit.floor is not None %}
+                    <span class="unit-detail">🏢 Floor {{ unit.floor }}</span>
+                    {% endif %}
+                    <span class="unit-detail">🛏️ {{ unit.bedrooms }} BR</span>
+                    <span class="unit-detail">🚿 {{ unit.bathrooms }} BA</span>
+                    {% if unit.square_feet %}
+                    <span class="unit-detail">📐 {{ unit.square_feet }} sq ft</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="unit-actions">
+                <span class="unit-rent">₦{{ unit.rent_amount|floatformat:0 }}/mo</span>
+                <span class="unit-status {% if unit.is_occupied %}occupied{% else %}vacant{% endif %}">
+                    {{ unit.get_status_display }}
+                </span>
+                <div class="property-actions">
+                    <a href="{% url 'unit_update' unit.pk %}" class="btn btn-secondary btn-icon">Edit</a>
+                    <a href="{% url 'unit_delete' unit.pk %}" class="btn btn-secondary btn-icon">Delete</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <!-- NO UNITS YET -->
+    <div class="empty-state">
+        <div class="empty-state-icon">📦</div>
+        <h3 class="empty-state-title">No Units Yet</h3>
+        <p class="empty-state-text">
+            Add units to this property to start managing rentals.
+        </p>
+        <a href="{% url 'unit_create' property.pk %}" class="btn btn-primary">+ Add First Unit</a>
+    </div>
+{% endif %}
+{% endblock %}

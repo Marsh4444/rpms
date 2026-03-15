@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Property - RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/properties.css' %}">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <!-- FORM TITLE -->
+        <h1 class="form-title">
+            {% if object %}
+                Edit Property: {{ object.name }}
+            {% else %}
+                Add New Property
+            {% endif %}
+        </h1>
+        
+        <!-- ERROR MESSAGES -->
+        {% if form.errors %}
+        <div class="form-errors">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <!-- PROPERTY FORM -->
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Property Name -->
+            <div class="form-group">
+                <label for="id_name" class="form-label">Property Name *</label>
+                <input 
+                    type="text" 
+                    name="name" 
+                    id="id_name" 
+                    class="form-input" 
+                    placeholder="e.g., Sunset Apartments"
+                    value="{{ form.name.value|default:'' }}"
+                    required
+                >
+            </div>
+            
+            <!-- Address -->
+            <div class="form-group">
+                <label for="id_address" class="form-label">Street Address *</label>
+                <input 
+                    type="text" 
+                    name="address" 
+                    id="id_address" 
+                    class="form-input" 
+                    placeholder="e.g., 45 Victoria Island Road"
+                    value="{{ form.address.value|default:'' }}"
+                    required
+                >
+            </div>
+            
+            <!-- City and State (Two Columns) -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_city" class="form-label">City *</label>
+                    <input 
+                        type="text" 
+                        name="city" 
+                        id="id_city" 
+                        class="form-input" 
+                        placeholder="e.g., Lagos"
+                        value="{{ form.city.value|default:'' }}"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_state" class="form-label">State</label>
+                    <input 
+                        type="text" 
+                        name="state" 
+                        id="id_state" 
+                        class="form-input" 
+                        placeholder="e.g., Lagos State"
+                        value="{{ form.state.value|default:'' }}"
+                    >
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div class="form-group">
+                <label for="id_description" class="form-label">Description</label>
+                <textarea 
+                    name="description" 
+                    id="id_description" 
+                    class="form-input" 
+                    rows="4"
+                    placeholder="Describe the property, amenities, features..."
+                >{{ form.description.value|default:'' }}</textarea>
+            </div>
+            
+            <!-- Manager -->
+            <div class="form-group">
+                <label for="id_manager" class="form-label">Property Manager</label>
+                <select name="manager" id="id_manager" class="form-select">
+                    <option value="">-- No Manager --</option>
+                    {% for manager in form.fields.manager.queryset %}
+                        <option value="{{ manager.pk }}" {% if form.manager.value == manager.pk %}selected{% endif %}>
+                            {{ manager.get_full_name|default:manager.username }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <small style="color: var(--muted); font-size: 0.75rem; margin-top: 0.5rem; display: block;">
+                    Optional. Assign a manager to oversee this property.
+                </small>
+            </div>
+            
+            <!-- FORM ACTIONS -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if object %}Save Changes{% else %}Create Property{% endif %}
+                </button>
+                <a href="{% if object %}{% url 'property_detail' object.pk %}{% else %}{% url 'property_list' %}{% endif %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

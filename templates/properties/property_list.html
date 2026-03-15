@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Properties - RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/properties.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <h1 class="page-title">My Properties</h1>
+    <div class="page-actions">
+        <a href="{% url 'property_create' %}" class="btn btn-primary">+ Add Property</a>
+    </div>
+</div>
+
+<!-- STATISTICS CARDS -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Properties</div>
+        <div class="stat-value">{{ total_properties }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Units</div>
+        <div class="stat-value">{{ total_units }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Occupied Units</div>
+        <div class="stat-value">{{ occupied_units }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Vacant Units</div>
+        <div class="stat-value">{{ total_units|add:"-"|add:occupied_units }}</div>
+    </div>
+</div>
+
+<!-- PROPERTY LIST -->
+{% if properties %}
+    <div class="properties-grid">
+        {% for property in properties %}
+        <div class="property-card">
+            <div class="property-info">
+                <h3 class="property-name">
+                    <a href="{% url 'property_detail' property.pk %}">{{ property.name }}</a>
+                </h3>
+                <div class="property-location">
+                    📍 {{ property.address }}, {{ property.city }}{% if property.state %}, {{ property.state }}{% endif %}
+                </div>
+                <div class="property-stats">
+                    <span class="property-stat">
+                        <strong>{{ property.total_units }}</strong> units
+                    </span>
+                    <span class="property-stat">
+                        <strong>{{ property.occupied_units }}</strong> occupied
+                    </span>
+                    <span class="property-stat">
+                        <strong>{{ property.occupancy_rate }}%</strong> occupancy
+                    </span>
+                </div>
+            </div>
+            <div class="property-actions">
+                <a href="{% url 'property_detail' property.pk %}" class="btn btn-secondary btn-icon">View</a>
+                <a href="{% url 'property_update' property.pk %}" class="btn btn-secondary btn-icon">Edit</a>
+                <a href="{% url 'property_delete' property.pk %}" class="btn btn-secondary btn-icon">Delete</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- PAGINATION -->
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+        
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+{% else %}
+    <!-- EMPTY STATE -->
+    <div class="empty-state">
+        <div class="empty-state-icon">🏢</div>
+        <h2 class="empty-state-title">No Properties Yet</h2>
+        <p class="empty-state-text">
+            Get started by adding your first property.
+        </p>
+        <a href="{% url 'property_create' %}" class="btn btn-primary">+ Add Your First Property</a>
+    </div>
+{% endif %}
+{% endblock %}

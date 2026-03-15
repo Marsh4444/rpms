@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Unit - RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/properties.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="confirm-delete">
+    <!-- WARNING ICON -->
+    <div class="confirm-icon">⚠️</div>
+    
+    <!-- TITLE -->
+    <h1 class="confirm-title">Delete Unit?</h1>
+    
+    <!-- MESSAGE -->
+    <p class="confirm-message">
+        Are you sure you want to delete <strong>Unit {{ unit.unit_number }}</strong> 
+        from <strong>{{ unit.property.name }}</strong>?
+    </p>
+    
+    {% if unit.is_occupied %}
+    <p class="confirm-message" style="color: var(--danger); font-weight: 600;">
+        ⚠️ This unit is currently occupied!
+    </p>
+    {% endif %}
+    
+    <p class="confirm-message">
+        This action cannot be undone.
+    </p>
+    
+    <!-- CONFIRMATION FORM -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="confirm-actions">
+            <a href="{% url 'property_detail' unit.property.pk %}" class="btn btn-secondary">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-danger">
+                Yes, Delete Unit
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

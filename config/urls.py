@@ -24,6 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', user_views.home, name='home'),  # Home page
     path('accounts/', include('apps.users.urls')),  # Include user app URLs
+    path('properties/', include('apps.properties.urls')),
+
 ]
 
 # Serve media files during development
