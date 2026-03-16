@@ -8,7 +8,7 @@ from .base import *
 # DEVELOPMENT OVERRIDES
 # ============================================================================
 
-DEBUG = False
+DEBUG = True
 # Force DEBUG on in development
 # Even if .env says False, this overrides it
 # Shows detailed error pages when things break

@@ -31,8 +31,36 @@
                     <a href="#" class="nav-link">Leases</a>
                     <a href="#" class="nav-link">Payments</a>
                     <a href="#" class="nav-link">Maintenance</a>
-                    <a href="{% url 'profile' %}" class="nav-link">Profile</a>
-                    <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+
+                    <!-- Profile Dropdown -->
+                    <div class="profile-dropdown">
+                        <button class="profile-icon" onclick="toggleProfileMenu()" title="{{ user.get_full_name_or_username }}">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}">
+                            {% else %}
+                                <div class="profile-initial">{{ user.username|slice:":1"|upper }}</div>
+                            {% endif %}
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="profile-menu" id="profileMenu">
+                            <div class="profile-menu-header">
+                                <div class="profile-menu-name">{{ user.get_full_name_or_username }}</div>
+                                <div class="profile-menu-role">{{ user.get_role_display }}</div>
+                            </div>
+                            <div class="profile-menu-divider"></div>
+                            <a href="{% url 'profile' %}" class="profile-menu-item">
+                                <span>👤</span> View Profile
+                            </a>
+                            <a href="{% url 'profile_edit' %}" class="profile-menu-item">
+                                <span>⚙️</span> Edit Profile
+                            </a>
+                            <div class="profile-menu-divider"></div>
+                            <a href="{% url 'logout' %}" class="profile-menu-item">
+                                <span>🚪</span> Logout
+                            </a>
+                        </div>
+                    </div>
                 {% else %}
                     <!-- Links for guests -->
                     <a href="{% url 'login' %}" class="nav-link">Login</a>
@@ -81,35 +109,53 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- FOOTER -->
-<footer class="footer">
-    <div class="footer-container">
-        <p class="footer-love">
-            Built with <span class="heart">♥</span> by <strong>Marsh</strong>
-        </p>
-        <div class="footer-socials">
-            <!-- Instagram -->
-            <a href="https://instagram.com/yourhandle" target="_blank" class="social-link" aria-label="Instagram">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                    <circle cx="12" cy="12" r="4"></circle>
-                    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle>
-                </svg>
-            </a>
-            <!-- X / Twitter -->
-            <a href="https://x.com/yourhandle" target="_blank" class="social-link" aria-label="X">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
-            </a>
-            <!-- GitHub -->
-            <a href="https://github.com/yourhandle" target="_blank" class="social-link" aria-label="GitHub">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-                </svg>
-            </a>
+    <footer class="footer">
+        <div class="footer-container">
+            <p class="footer-love">
+                Built with <span class="heart">♥</span> by <strong>Marsh</strong>
+            </p>
+            <div class="footer-socials">
+                <!-- Instagram -->
+                <a href="https://instagram.com/yourhandle" target="_blank" class="social-link" aria-label="Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle>
+                    </svg>
+                </a>
+                <!-- X / Twitter -->
+                <a href="https://x.com/yourhandle" target="_blank" class="social-link" aria-label="X">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                </a>
+                <!-- GitHub -->
+                <a href="https://github.com/yourhandle" target="_blank" class="social-link" aria-label="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                    </svg>
+                </a>
+            </div>
         </div>
-    </div>
-</footer>
+    </footer>
+
+<!-- Profile Dropdown Script -->
+    <script>
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('show');
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.profile-dropdown');
+            const menu = document.getElementById('profileMenu');
+            
+            if (menu && dropdown && !dropdown.contains(event.target)) {
+                menu.classList.remove('show');
+            }
+        });
+    </script>
 
 </body>
 </html>

@@ -224,3 +224,113 @@ body {
     color: rgba(255, 255, 255, 0.9);
     transform: translateY(-2px);
 }
+
+/* ========================================
+   PROFILE DROPDOWN IN NAVBAR
+   ======================================== */
+
+.profile-dropdown {
+    position: relative;
+}
+
+.profile-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    transition: all 0.2s;
+    cursor: pointer;
+    background: transparent;
+    padding: 0;
+}
+
+.profile-icon:hover {
+    border-color: var(--accent);
+    transform: scale(1.05);
+}
+
+.profile-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-initial {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: #0a0c0f;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+/* Dropdown Menu */
+.profile-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: none;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.profile-menu.show {
+    display: block;
+}
+
+.profile-menu-header {
+    padding: 1rem;
+    background: var(--surface2);
+}
+
+.profile-menu-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.profile-menu-role {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.profile-menu-divider {
+    height: 1px;
+    background: var(--border);
+}
+
+.profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+}
+
+.profile-menu-item:hover {
+    background: var(--surface2);
+}
+
+.profile-menu-item span {
+    font-size: 1rem;
+}
