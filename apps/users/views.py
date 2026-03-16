@@ -3,11 +3,13 @@
 # ============================================================================
 
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .forms import UserRegistrationForm
+from .models import User
 
 
 # ============================================================================
@@ -189,3 +191,46 @@ def logout_view(request):
     
     # Redirect to home page
     return redirect('home')
+
+# ADD THESE NEW VIEWS
+
+@login_required
+def profile_view(request):
+    """
+    Display user's profile.
+    """
+    return render(request, 'users/profile.html', {'user': request.user})
+
+
+@login_required
+def profile_edit_view(request):
+    """
+    Edit user's profile.
+    """
+    if request.method == 'POST':
+        # Update user fields
+        request.user.first_name = request.POST.get('first_name', '')
+        request.user.last_name = request.POST.get('last_name', '')
+        request.user.email = request.POST.get('email', '')
+        request.user.phone_number = request.POST.get('phone_number', '')
+        request.user.bio = request.POST.get('bio', '')
+        request.user.company_name = request.POST.get('company_name', '')
+        request.user.address = request.POST.get('address', '')
+        request.user.city = request.POST.get('city', '')
+        request.user.state = request.POST.get('state', '')
+        request.user.website = request.POST.get('website', '')
+        
+        # Handle profile picture upload
+        if 'profile_picture' in request.FILES:
+            request.user.profile_picture = request.FILES['profile_picture']
+        
+        # Handle profile picture removal
+        if request.POST.get('profile_picture-clear'):
+            request.user.profile_picture = None
+        
+        request.user.save()
+        
+        messages.success(request, 'Your profile has been updated successfully!')
+        return redirect('profile')
+    
+    return render(request, 'users/profile_edit.html', {'user': request.user})

@@ -133,6 +133,22 @@
                     Optional. Upload a photo of the property.
                 </small>
             </div>
+
+            <!-- Property Video URL (ADD THIS) -->
+            <div class="form-group">
+                <label for="id_video_url" class="form-label">Property Video</label>
+                <input 
+                    type="url" 
+                    name="video_url" 
+                    id="id_video_url" 
+                    class="form-input" 
+                    placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+                    value="{{ form.video_url.value|default:'' }}"
+                >
+                <small style="color: var(--muted); font-size: 0.75rem; margin-top: 0.5rem; display: block;">
+                    Optional. Paste a YouTube or Vimeo video URL. This will be embedded on the property detail page.
+                </small>
+            </div>
             
             <!-- Manager -->
             <div class="form-group">

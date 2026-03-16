@@ -221,7 +221,7 @@ class PropertyCreateView(LoginRequiredMixin, CreateView):
     model = Property
     template_name = 'properties/property_form.html'
     
-    fields = ['name', 'address', 'city', 'state', 'description', 'manager']
+    fields = ['name', 'address', 'city', 'state', 'description', 'image', 'video_url', 'manager']
     # Which fields to show in the form
     # Notice: 'owner' is NOT here (we set it automatically)
     # 'created_at' and 'updated_at' are auto-generated
@@ -310,7 +310,7 @@ class PropertyUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     # Same template as create (form looks the same)
     # Template can check if object exists to show "Edit" vs "Create" title
     
-    fields = ['name', 'address', 'city', 'state', 'description', 'image', 'manager']
+    fields = ['name', 'address', 'city', 'state', 'description', 'image', 'video_url', 'manager']
     # Same fields as create
     
     def test_func(self):

@@ -2,10 +2,15 @@
 # IMPORTS
 # ============================================================================
 
+import re
+
 from django.db import models
 from django.conf import settings
 # settings.AUTH_USER_MODEL points to our custom User model
 # Better than importing User directly (more flexible)
+from urllib.parse import urlparse, parse_qs
+import re
+
 
 
 # ============================================================================
@@ -217,6 +222,63 @@ class Property(models.Model):
         # (occupied / total) * 100 = percentage
         # round(..., 2) = 2 decimal places (e.g., 85.71%)
         # Used in: landlord dashboard, reports
+
+    
+    def get_video_embed_url(self):
+        """
+        Convert YouTube/Vimeo URL to embeddable format.
+
+        Handles:
+        - youtube.com/watch?v=ID
+        - youtu.be/ID
+        - youtube.com/shorts/ID
+        - youtube.com/live/ID
+        - vimeo.com/ID
+        - vimeo.com/ID/HASH  (private/unlisted)
+
+        Returns:
+            str | None: Embeddable URL, or None if unsupported/missing.
+        """
+        if not self.video_url:
+            return None
+
+        try:
+            parsed = urlparse(self.video_url)
+        except ValueError:
+            return None
+
+        hostname = parsed.hostname or ""
+
+        # ── YouTube ──────────────────────────────────────────────────────────────
+        if hostname in ("www.youtube.com", "youtube.com"):
+            # Standard: /watch?v=ID
+            if parsed.path == "/watch":
+                video_id = parse_qs(parsed.query).get("v", [None])[0]
+
+            # Short-form / live: /shorts/ID  or  /live/ID
+            else:
+                match = re.match(r"^/(?:shorts|live)/([^/?#]+)", parsed.path)
+                video_id = match.group(1) if match else None
+
+            if video_id:
+                return f"https://www.youtube.com/embed/{video_id}"
+
+        elif hostname == "youtu.be":
+            # Short URL: youtu.be/ID
+            video_id = parsed.path.lstrip("/").split("/")[0] or None
+            if video_id:
+                return f"https://www.youtube.com/embed/{video_id}"
+
+        # ── Vimeo ─────────────────────────────────────────────────────────────────
+        elif hostname in ("www.vimeo.com", "vimeo.com"):
+            # Matches /ID  and  /ID/HASH (private videos)
+            match = re.match(r"^/(\d+)(/[a-f0-9]+)?", parsed.path)
+            if match:
+                video_id = match.group(1)
+                private_hash = match.group(2) or ""
+                return f"https://player.vimeo.com/video/{video_id}{private_hash}"
+
+        return None
 
 
 # ============================================================================

@@ -86,6 +86,51 @@ class User(AbstractUser):
     # upload_to='profile_pictures/': Files saved to media/profile_pictures/
     # Requires Pillow (already installed)
     
+    #setting user profile
+    
+    # ADD THESE NEW PROFILE FIELDS
+    bio = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Short bio or description"
+    )
+    
+    company_name = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Company or business name (for landlords/managers)"
+    )
+    
+    address = models.CharField(
+        max_length=300,
+        blank=True,
+        null=True,
+        help_text="Street address"
+    )
+    
+    city = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="City"
+    )
+    
+    state = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="State/Province"
+    )
+    
+    # Social media links (optional)
+    website = models.URLField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Personal or company website"
+    )
+    
     
     # ========================================================================
     # META OPTIONS
@@ -129,3 +174,11 @@ class User(AbstractUser):
     # These methods make it easy to check roles in views:
     # if request.user.is_landlord():
     #     # Show landlord dashboard
+
+    def get_full_name_or_username(self):
+        """Return full name if available, otherwise username"""
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        elif self.first_name:
+            return self.first_name
+        return self.username
