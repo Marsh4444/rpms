@@ -73,6 +73,27 @@ class Property(models.Model):
     # "Modern apartment complex with pool, gym, parking"
     # TextField = unlimited length (unlike CharField)
     
+    # ADD THIS NEW FIELD
+    image = models.ImageField(
+        upload_to='property_images/%Y/%m/%d',
+        blank=True,
+        null=True,
+        help_text="Property photo"
+    )
+
+    # ADD THIS NEW FIELD
+    video_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="YouTube or Vimeo video URL (e.g., https://www.youtube.com/watch?v=...)"
+    )
+    # URLField = validates that it's a proper URL
+    # User pastes YouTube/Vimeo link
+    # We'll convert it to embeddable format in template
+
+
+    
     
     # ========================================================================
     # OWNERSHIP & MANAGEMENT

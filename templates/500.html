@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - RPMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/properties.css' %}">
+</head>
+<body>
+    <div class="confirm-delete" style="margin-top: 5rem;">
+        <div class="confirm-icon" style="color: var(--danger);">⚠️</div>
+        <h1 class="confirm-title">500 - Server Error</h1>
+        <p class="confirm-message">
+            Something went wrong on our end.
+        </p>
+        <p class="confirm-message" style="color: var(--muted);">
+            Our team has been notified. Please try again later.
+        </p>
+        <div class="confirm-actions">
+            <a href="/" class="btn btn-primary">Go to Home</a>
+        </div>
+    </div>
+</body>
+</html>

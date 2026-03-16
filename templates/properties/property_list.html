@@ -32,7 +32,7 @@
     </div>
     <div class="stat-card">
         <div class="stat-label">Vacant Units</div>
-        <div class="stat-value">{{ total_units|add:"-"|add:occupied_units }}</div>
+        <div class="stat-value">{{ vacant_units }}</div>
     </div>
 </div>
 
@@ -41,6 +41,14 @@
     <div class="properties-grid">
         {% for property in properties %}
         <div class="property-card">
+
+            {% if property.image %}
+            <img src="{{ property.image.url }}" alt="{{ property.name }}" 
+                style="width: 120px; height: 120px; object-fit: cover; border-radius: 4px; margin-right: 1.5rem;">
+            {% else %}
+            <div style="width: 120px; height: 120px; background: var(--surface2); border-radius: 4px; margin-right: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 2rem;">🏢</div>
+            {% endif %}
+            
             <div class="property-info">
                 <h3 class="property-name">
                     <a href="{% url 'property_detail' property.pk %}">{{ property.name }}</a>

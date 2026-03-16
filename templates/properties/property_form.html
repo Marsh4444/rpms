@@ -39,7 +39,7 @@
         {% endif %}
         
         <!-- PROPERTY FORM -->
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
             <!-- Property Name -->
@@ -108,6 +108,30 @@
                     rows="4"
                     placeholder="Describe the property, amenities, features..."
                 >{{ form.description.value|default:'' }}</textarea>
+            </div>
+
+            <!-- Property Image (ADD THIS) -->
+            <div class="form-group">
+                <label for="id_image" class="form-label">Property Photo</label>
+                {% if object and object.image %}
+                    <div style="margin-bottom: 0.5rem;">
+                        <img src="{{ object.image.url }}" alt="{{ object.name }}" style="max-width: 200px; border-radius: 4px;">
+                    </div>
+                    <label style="font-size: 0.75rem; color: var(--muted);">
+                        <input type="checkbox" name="image-clear" id="image-clear_id">
+                        Clear current image
+                    </label>
+                {% endif %}
+                <input 
+                    type="file" 
+                    name="image" 
+                    id="id_image" 
+                    class="form-input"
+                    accept="image/*"
+                >
+                <small style="color: var(--muted); font-size: 0.75rem; margin-top: 0.5rem; display: block;">
+                    Optional. Upload a photo of the property.
+                </small>
             </div>
             
             <!-- Manager -->

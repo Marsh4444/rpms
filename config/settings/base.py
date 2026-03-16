@@ -150,4 +150,18 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = 'login'  # URL name for login view
 LOGIN_REDIRECT_URL = 'home'  # URL name to redirect after login
 
-#
+# Message tags for Bootstrap compatibility
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'debug',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'error',
+}
+
+# Custom error handlers
+HANDLER404 = 'django.views.defaults.page_not_found'
+HANDLER403 = 'django.views.defaults.permission_denied'
+HANDLER500 = 'django.views.defaults.server_error'

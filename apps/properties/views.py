@@ -104,6 +104,8 @@ class PropertyListView(LoginRequiredMixin, ListView):
             is_occupied=True
         ).count()
         # How many units are currently occupied
+        # Add vacant units calculation
+        context['vacant_units'] = context['total_units'] - context['occupied_units']
         
         return context
 
@@ -308,7 +310,7 @@ class PropertyUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     # Same template as create (form looks the same)
     # Template can check if object exists to show "Edit" vs "Create" title
     
-    fields = ['name', 'address', 'city', 'state', 'description', 'manager']
+    fields = ['name', 'address', 'city', 'state', 'description', 'image', 'manager']
     # Same fields as create
     
     def test_func(self):
@@ -397,15 +399,16 @@ class PropertyDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         property = self.get_object()
         property_name = property.name
         # Save name before deleting (can't access after deletion)
+
+        # Call parent delete (this deletes the object)
+        response = super().delete(request, *args, **kwargs)
         
         messages.success(
             self.request,
             f'Property "{property_name}" has been deleted successfully.'
         )
         
-        return super().delete(request, *args, **kwargs)
-        # Calls DeleteView's delete() which removes object from database
-
+        return response
 
 # ============================================================================
 # UNIT VIEWS
@@ -581,10 +584,13 @@ class UnitDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         unit = self.get_object()
         unit_number = unit.unit_number
         property_name = unit.property.name
+
+        # Call parent delete (this deletes the object)
+        response = super().delete(request, *args, **kwargs)
         
         messages.success(
             self.request,
             f'Unit {unit_number} has been removed from {property_name}.'
         )
         
-        return super().delete(request, *args, **kwargs)
+        return response

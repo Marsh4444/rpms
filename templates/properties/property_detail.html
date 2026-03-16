@@ -20,6 +20,12 @@
 
 <!-- PROPERTY INFORMATION -->
 <div class="property-header">
+
+    {% if property.image %}
+    <img src="{{ property.image.url }}" alt="{{ property.name }}" 
+         style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 4px; margin-bottom: 1rem;">
+    {% endif %}
+    
     <h2 class="property-title">{{ property.name }}</h2>
     <p class="property-address">
         📍 {{ property.address }}, {{ property.city }}{% if property.state %}, {{ property.state }}{% endif %}
