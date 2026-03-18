@@ -87,6 +87,14 @@ urlpatterns = [
     # View receives: self.kwargs = {'pk': 10}
     # Shows confirmation to delete unit with ID 10
     # Example: http://localhost:8000/properties/units/10/delete/
+
+     # Property Images
+    path('<int:property_pk>/images/upload/', views.PropertyImageUploadView.as_view(), name='property_image_upload'),
+    path('images/<int:pk>/delete/', views.PropertyImageDeleteView.as_view(), name='property_image_delete'),
+    
+    # Unit Images  
+    path('units/<int:unit_pk>/images/upload/', views.UnitImageUploadView.as_view(), name='unit_image_upload'),
+    path('unit-images/<int:pk>/delete/', views.UnitImageDeleteView.as_view(), name='unit_image_delete'),
 ]
 
 

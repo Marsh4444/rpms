@@ -28,7 +28,7 @@
                 {% if user.is_authenticated %}
                     <!-- Links for logged-in users -->
                     <a href="{% url 'property_list' %}" class="nav-link">Properties</a>
-                    <a href="#" class="nav-link">Leases</a>
+                    <a href="{% url 'lease_list' %}" class="nav-link">Leases</a>
                     <a href="#" class="nav-link">Payments</a>
                     <a href="#" class="nav-link">Maintenance</a>
 

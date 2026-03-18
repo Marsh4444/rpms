@@ -13,7 +13,7 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
-from .models import Property, Unit
+from .models import Property, Unit, PropertyImage, UnitImage
 
 
 # ============================================================================
@@ -593,4 +593,125 @@ class UnitDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             f'Unit {unit_number} has been removed from {property_name}.'
         )
         
+        return response
+
+# ============================================================================
+# PROPERTY IMAGE VIEWS
+# ============================================================================
+
+from .models import PropertyImage, UnitImage
+
+class PropertyImageUploadView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    """
+    Upload multiple images for a property.
+    
+    URL: /properties/5/images/upload/
+    Allows uploading multiple images at once for property with ID 5
+    """
+    
+    model = PropertyImage
+    template_name = 'properties/property_image_upload.html'
+    fields = ['image', 'caption', 'order']
+    
+    def test_func(self):
+        """Check if user owns the property"""
+        property_pk = self.kwargs.get('property_pk')
+        property = get_object_or_404(Property, pk=property_pk)
+        return property.owner == self.request.user
+    
+    def form_valid(self, form):
+        """Auto-set property from URL"""
+        property_pk = self.kwargs.get('property_pk')
+        property = get_object_or_404(Property, pk=property_pk)
+        form.instance.property = property
+        
+        messages.success(self.request, 'Image uploaded successfully!')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        """Redirect back to property detail"""
+        return reverse('property_detail', kwargs={'pk': self.kwargs.get('property_pk')})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        property_pk = self.kwargs.get('property_pk')
+        context['property'] = get_object_or_404(Property, pk=property_pk)
+        return context
+
+
+class PropertyImageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """Delete a property image"""
+    
+    model = PropertyImage
+    template_name = 'properties/image_confirm_delete.html'
+    
+    def test_func(self):
+        """Check if user owns the property"""
+        image = self.get_object()
+        return image.property.owner == self.request.user
+    
+    def get_success_url(self):
+        return reverse('property_detail', kwargs={'pk': self.object.property.pk})
+    
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        messages.success(self.request, 'Image deleted successfully.')
+        return response
+
+
+# ============================================================================
+# UNIT IMAGE VIEWS
+# ============================================================================
+
+class UnitImageUploadView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    """Upload images for a unit"""
+    
+    model = UnitImage
+    template_name = 'properties/unit_image_upload.html'
+    fields = ['image', 'caption', 'order']
+    
+    def test_func(self):
+        """Check if user owns the property this unit belongs to"""
+        unit_pk = self.kwargs.get('unit_pk')
+        unit = get_object_or_404(Unit, pk=unit_pk)
+        return unit.property.owner == self.request.user
+    
+    def form_valid(self, form):
+        """Auto-set unit from URL"""
+        unit_pk = self.kwargs.get('unit_pk')
+        unit = get_object_or_404(Unit, pk=unit_pk)
+        form.instance.unit = unit
+        
+        messages.success(self.request, 'Image uploaded successfully!')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        """Redirect back to property detail"""
+        unit = self.object.unit
+        return reverse('property_detail', kwargs={'pk': unit.property.pk})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        unit_pk = self.kwargs.get('unit_pk')
+        context['unit'] = get_object_or_404(Unit, pk=unit_pk)
+        return context
+
+
+class UnitImageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """Delete a unit image"""
+    
+    model = UnitImage
+    template_name = 'properties/image_confirm_delete.html'
+    
+    def test_func(self):
+        """Check if user owns the property"""
+        image = self.get_object()
+        return image.unit.property.owner == self.request.user
+    
+    def get_success_url(self):
+        return reverse('property_detail', kwargs={'pk': self.object.unit.property.pk})
+    
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        messages.success(self.request, 'Image deleted successfully.')
         return response

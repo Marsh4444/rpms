@@ -25,6 +25,7 @@ urlpatterns = [
     path('', user_views.home, name='home'),  # Home page
     path('accounts/', include('apps.users.urls')),  # Include user app URLs
     path('properties/', include('apps.properties.urls')),
+    path('leases/', include('apps.leases.urls')),
 
 ]
 

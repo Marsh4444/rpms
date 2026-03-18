@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leases — RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/leases.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- =========================================================
+     PAGE HEADER
+     ========================================================= -->
+<div class="page-header">
+    <div class="page-header-text">
+        <h1>Leases</h1>
+        <p>Manage all rental agreements for your properties</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'lease_create' %}" class="btn btn-primary">+ New Lease</a>
+    </div>
+</div>
+
+<!-- =========================================================
+     STATS STRIP
+     ========================================================= -->
+<div class="stats-strip">
+    <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div>
+            <div class="stat-label">Total</div>
+            <div class="stat-value">{{ total_leases }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div>
+            <div class="stat-label">Active</div>
+            <div class="stat-value active">{{ active_leases }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div>
+            <div class="stat-label">Expired</div>
+            <div class="stat-value expired">{{ expired_leases }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🚫</div>
+        <div>
+            <div class="stat-label">Terminated</div>
+            <div class="stat-value terminated">{{ terminated_leases }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     FILTER BAR
+     ========================================================= -->
+<div class="filter-bar">
+    <span class="filter-label">Filter:</span>
+
+    <a href="{% url 'lease_list' %}"
+       class="filter-btn {% if current_filter == 'all' %}active{% endif %}">
+        All
+    </a>
+    <a href="{% url 'lease_list' %}?status=ACTIVE"
+       class="filter-btn {% if current_filter == 'ACTIVE' %}active{% endif %}">
+        Active
+    </a>
+    <a href="{% url 'lease_list' %}?status=EXPIRED"
+       class="filter-btn {% if current_filter == 'EXPIRED' %}active{% endif %}">
+        Expired
+    </a>
+    <a href="{% url 'lease_list' %}?status=TERMINATED"
+       class="filter-btn {% if current_filter == 'TERMINATED' %}active{% endif %}">
+        Terminated
+    </a>
+</div>
+
+<!-- =========================================================
+     LEASE LIST
+     ========================================================= -->
+{% if leases %}
+    <div class="lease-list">
+        {% for lease in leases %}
+        <div class="lease-card">
+
+            <!-- Coloured status bar on the left -->
+            <div class="lease-status-indicator {{ lease.status|lower }}"></div>
+
+            <!-- Main body: 3 columns -->
+            <div class="lease-card-body">
+
+                <!-- Column 1: Tenant + unit -->
+                <div>
+                    <div class="lease-tenant-name">
+                        {{ lease.tenant.get_full_name|default:lease.tenant.username }}
+                    </div>
+                    <div class="lease-unit-name">
+                        🏢 {{ lease.unit.property.name }} — {{ lease.unit.unit_number }}
+                    </div>
+                </div>
+
+                <!-- Column 2: Dates -->
+                <div class="lease-dates">
+                    <div>Start: <span>{{ lease.start_date|date:"d M Y" }}</span></div>
+                    <div>End: &nbsp;<span>{{ lease.end_date|date:"d M Y" }}</span></div>
+                </div>
+
+                <!-- Column 3: Rent -->
+                <div class="lease-rent">
+                    <div class="rent-figure">₦{{ lease.monthly_rent|floatformat:0 }}</div>
+                    <div class="rent-label">/ month</div>
+                </div>
+
+            </div>
+
+            <!-- Right: badge + action buttons -->
+            <div class="lease-card-actions">
+                <span class="badge badge-{{ lease.status|lower }}">
+                    {{ lease.get_status_display }}
+                </span>
+                <div style="display:flex; gap:0.5rem; margin-top:0.25rem;">
+                    <a href="{% url 'lease_detail' lease.pk %}" class="btn btn-secondary" style="padding:0.4rem 0.9rem; font-size:0.7rem;">
+                        View
+                    </a>
+                    <a href="{% url 'lease_update' lease.pk %}" class="btn btn-secondary" style="padding:0.4rem 0.9rem; font-size:0.7rem;">
+                        Edit
+                    </a>
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- =====================================================
+         PAGINATION
+         ===================================================== -->
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if current_filter != 'all' %}&status={{ current_filter }}{% endif %}"
+               class="page-link">«</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if current_filter != 'all' %}&status={{ current_filter }}{% endif %}"
+               class="page-link">‹</a>
+        {% else %}
+            <span class="page-link disabled">«</span>
+            <span class="page-link disabled">‹</span>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <span class="page-link active-page">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if current_filter != 'all' %}&status={{ current_filter }}{% endif %}"
+                   class="page-link">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if current_filter != 'all' %}&status={{ current_filter }}{% endif %}"
+               class="page-link">›</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if current_filter != 'all' %}&status={{ current_filter }}{% endif %}"
+               class="page-link">»</a>
+        {% else %}
+            <span class="page-link disabled">›</span>
+            <span class="page-link disabled">»</span>
+        {% endif %}
+    </div>
+    {% endif %}
+
+{% else %}
+    <!-- =====================================================
+         EMPTY STATE
+         ===================================================== -->
+    <div class="empty-state">
+        <span class="empty-icon">📄</span>
+        <h3>
+            {% if current_filter != 'all' %}
+                No {{ current_filter|title }} Leases
+            {% else %}
+                No Leases Yet
+            {% endif %}
+        </h3>
+        <p>
+            {% if current_filter != 'all' %}
+                No leases match the selected filter.
+                <a href="{% url 'lease_list' %}" style="color:var(--accent);">View all leases</a>
+            {% else %}
+                Create your first lease to get started.
+            {% endif %}
+        </p>
+        {% if current_filter == 'all' %}
+            <a href="{% url 'lease_create' %}" class="btn btn-primary">+ New Lease</a>
+        {% endif %}
+    </div>
+{% endif %}
+
+{% endblock %}

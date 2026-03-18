@@ -1,0 +1,696 @@
+/* ============================================================================
+   LEASES.CSS — RPMS Lease Module
+   Matches base.css: dark bg, Syne + DM Mono, gold accent
+   ============================================================================ */
+
+/* ============================================================================
+   PAGE HEADER
+   ============================================================================ */
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.page-header-text h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: 0.02em;
+    margin-bottom: 0.3rem;
+}
+
+.page-header-text p {
+    color: var(--muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+}
+
+.page-header-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* ============================================================================
+   STATS STRIP  
+   ============================================================================ */
+.stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: border-color 0.2s;
+}
+
+.stat-card:hover {
+    border-color: var(--accent);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.2rem;
+}
+
+.stat-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+}
+
+.stat-value.active  { color: var(--success); }
+.stat-value.expired { color: var(--accent); }
+.stat-value.terminated { color: var(--danger); }
+
+/* ============================================================================
+   FILTER BAR
+   ============================================================================ */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.25rem;
+}
+
+.filter-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-right: 0.5rem;
+}
+
+.filter-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.45rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.filter-btn.active {
+    background: var(--accent);
+    color: #0a0c0f;
+    border-color: var(--accent);
+}
+
+/* ============================================================================
+   LEASE LIST
+   ============================================================================ */
+.lease-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.lease-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    display: grid;
+    grid-template-columns: 4px 1fr auto;
+    gap: 1.25rem;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+}
+
+.lease-card:hover {
+    border-color: var(--accent);
+    background: var(--surface2);
+}
+
+/* Left colored bar */
+.lease-status-indicator {
+    width: 4px;
+    height: 48px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+.lease-status-indicator.active     { background: var(--success); }
+.lease-status-indicator.expired    { background: var(--accent); }
+.lease-status-indicator.terminated { background: var(--danger); }
+
+.lease-card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    align-items: center;
+}
+
+.lease-tenant-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+}
+
+.lease-unit-name {
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+}
+
+.lease-dates {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.8;
+}
+
+.lease-dates span {
+    color: var(--text);
+}
+
+.lease-rent {
+    text-align: right;
+}
+
+.rent-figure {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.rent-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* Right side actions */
+.lease-card-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.6rem;
+}
+
+/* ============================================================================
+   STATUS BADGES
+   ============================================================================ */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.badge-active {
+    background: rgba(74, 222, 128, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+}
+.badge-active::before { background: var(--success); }
+
+.badge-expired {
+    background: rgba(212, 168, 67, 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(212, 168, 67, 0.25);
+}
+.badge-expired::before { background: var(--accent); }
+
+.badge-terminated {
+    background: rgba(224, 92, 92, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(224, 92, 92, 0.25);
+}
+.badge-terminated::before { background: var(--danger); }
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+}
+
+.empty-state .empty-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+}
+
+/* ============================================================================
+   PAGINATION
+   ============================================================================ */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 2rem;
+}
+
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    font-family: 'DM Mono', monospace;
+    transition: all 0.2s;
+}
+
+.page-link:hover { border-color: var(--accent); color: var(--accent); }
+.page-link.active-page { background: var(--accent); color: #0a0c0f; border-color: var(--accent); }
+.page-link.disabled { opacity: 0.3; pointer-events: none; }
+
+/* ============================================================================
+   DETAIL PAGE LAYOUT
+   ============================================================================ */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.detail-main { display: flex; flex-direction: column; gap: 1.5rem; }
+.detail-sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* ============================================================================
+   DETAIL CARDS
+   ============================================================================ */
+.detail-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.detail-card-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.detail-card-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detail-card-body { padding: 1.5rem; }
+
+/* ============================================================================
+   INFO ROWS (key : value)
+   ============================================================================ */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.info-item {}
+
+.info-label {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.25rem;
+}
+
+.info-value {
+    font-size: 0.9rem;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+}
+
+.info-value.highlight {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.info-value.large {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Days remaining pill */
+.days-pill {
+    display: inline-block;
+    padding: 0.3rem 0.75rem;
+    border-radius: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid;
+}
+.days-pill.ok      { background: rgba(74,222,128,0.1); color: var(--success); border-color: rgba(74,222,128,0.3); }
+.days-pill.warning { background: rgba(212,168,67,0.1); color: var(--accent);  border-color: rgba(212,168,67,0.3); }
+.days-pill.urgent  { background: rgba(224,92,92,0.1);  color: var(--danger);  border-color: rgba(224,92,92,0.3); }
+
+/* ============================================================================
+   PAYMENT TABLE
+   ============================================================================ */
+.payment-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.payment-table th {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0 0.75rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.payment-table td {
+    padding: 0.85rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+}
+
+.payment-table tr:last-child td { border-bottom: none; }
+
+.payment-table tr:hover td { background: var(--surface2); }
+
+.payment-amount {
+    color: var(--success);
+    font-weight: 500;
+}
+
+.no-payments {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.82rem;
+    padding: 2rem 0;
+}
+
+/* Summary row */
+.payment-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0 0;
+    margin-top: 0.75rem;
+    border-top: 1px solid var(--border);
+}
+.payment-summary-item { text-align: center; }
+.payment-summary-label {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.2rem;
+}
+.payment-summary-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    font-weight: 500;
+}
+.payment-summary-value.paid { color: var(--success); }
+.payment-summary-value.due  { color: var(--danger); }
+
+/* ============================================================================
+   ACTION BAR (detail page top)
+   ============================================================================ */
+.action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.action-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.action-bar-right {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.back-link {
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent); }
+
+/* ============================================================================
+   FORM PAGE
+   ============================================================================ */
+.form-container {
+    max-width: 760px;
+}
+
+.form-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.form-section-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+}
+
+.form-section-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0;
+}
+
+.form-section-body {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.form-section-body.single-col {
+    grid-template-columns: 1fr;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+}
+
+.form-input,
+select.form-input,
+textarea.form-input {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text);
+    padding: 0.7rem 0.9rem;
+    width: 100%;
+    transition: border-color 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.form-input:focus,
+select.form-input:focus,
+textarea.form-input:focus {
+    border-color: var(--accent);
+}
+
+.form-input::placeholder { color: var(--muted); }
+
+select.form-input {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    padding-right: 2.5rem;
+}
+
+/* Color the date input calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.6);
+    cursor: pointer;
+}
+
+/* Error state */
+.form-input.error { border-color: var(--danger); }
+
+.field-errors {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.field-errors li {
+    font-size: 0.75rem;
+    color: var(--danger);
+    margin-top: 0.2rem;
+}
+
+/* Non-field errors */
+.form-errors {
+    background: rgba(224, 92, 92, 0.1);
+    border: 1px solid rgba(224, 92, 92, 0.3);
+    border-left: 3px solid var(--danger);
+    border-radius: 2px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.82rem;
+    color: var(--danger);
+}
+.form-errors ul { padding-left: 1rem; margin: 0.5rem 0 0; }
+.form-errors li { margin-bottom: 0.25rem; }
+
+/* Form actions */
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1.25rem 1.5rem;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+@media (max-width: 900px) {
+    .stats-strip { grid-template-columns: repeat(2, 1fr); }
+    .detail-grid { grid-template-columns: 1fr; }
+    .lease-card-body { grid-template-columns: 1fr 1fr; }
+    .info-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    .stats-strip { grid-template-columns: 1fr 1fr; }
+    .lease-card { grid-template-columns: 4px 1fr; }
+    .lease-card-actions { display: none; }
+    .lease-card-body { grid-template-columns: 1fr; }
+    .form-section-body { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; }
+}

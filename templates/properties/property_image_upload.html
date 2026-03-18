@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Upload Images - {{ property.name }} - RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/properties.css' %}">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <h1 class="form-title">Upload Images for {{ property.name }}</h1>
+        
+        <form method="post" enctype="multipart/form-data" id="imageUploadForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_image" class="form-label">Select Image *</label>
+                <input type="file" name="image" id="id_image" class="form-input" accept="image/*" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_caption" class="form-label">Caption</label>
+                <input type="text" name="caption" id="id_caption" class="form-input" 
+                       placeholder="e.g., Main Entrance, Swimming Pool, Lobby">
+                <small style="color: var(--muted); font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+                    Optional description for this image
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_order" class="form-label">Display Order</label>
+                <input type="number" name="order" id="id_order" class="form-input" value="0" min="0">
+                <small style="color: var(--muted); font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+                    Lower numbers appear first (0 = first image)
+                </small>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Upload Image</button>
+                <a href="{% url 'property_detail' property.pk %}" class="btn btn-secondary">Done</a>
+            </div>
+        </form>
+        
+        <p style="color: var(--muted); font-size: 0.8rem; margin-top: 1rem; text-align: center;">
+            Upload images one at a time. You can upload as many as you need.
+        </p>
+    </div>
+</div>
+{% endblock %}

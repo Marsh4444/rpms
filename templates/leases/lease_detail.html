@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lease Detail — RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/leases.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- =========================================================
+     ACTION BAR  (back link + buttons)
+     ========================================================= -->
+<div class="action-bar">
+    <div class="action-bar-left">
+        <a href="{% url 'lease_list' %}" class="back-link">← Back to Leases</a>
+        <span class="badge badge-{{ lease.status|lower }}">
+            {{ lease.get_status_display }}
+        </span>
+    </div>
+    <div class="action-bar-right">
+        <a href="{% url 'lease_update' lease.pk %}" class="btn btn-secondary">Edit Lease</a>
+        <a href="{% url 'lease_delete' lease.pk %}" class="btn btn-secondary"
+           style="border-color: rgba(224,92,92,0.4); color: var(--danger);"
+           onclick="return confirm('Terminate this lease? This cannot be undone.')">
+            Terminate
+        </a>
+    </div>
+</div>
+
+<!-- =========================================================
+     DETAIL GRID  (main + sidebar)
+     ========================================================= -->
+<div class="detail-grid">
+
+    <!-- =====================================================
+         LEFT — MAIN COLUMN
+         ===================================================== -->
+    <div class="detail-main">
+
+        <!-- ─── LEASE OVERVIEW ─── -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <h2>📄 Lease Overview</h2>
+                <span style="font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted);">
+                    #{{ lease.pk }}
+                </span>
+            </div>
+            <div class="detail-card-body">
+                <div class="info-grid">
+
+                    <div class="info-item">
+                        <div class="info-label">Tenant</div>
+                        <div class="info-value large">
+                            {{ lease.tenant.get_full_name|default:lease.tenant.username }}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Monthly Rent</div>
+                        <div class="info-value highlight">
+                            ₦{{ lease.monthly_rent|floatformat:0 }}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Property</div>
+                        <div class="info-value">{{ lease.unit.property.name }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Unit</div>
+                        <div class="info-value">{{ lease.unit.unit_number }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Start Date</div>
+                        <div class="info-value">{{ lease.start_date|date:"d M Y" }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">End Date</div>
+                        <div class="info-value">{{ lease.end_date|date:"d M Y" }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Security Deposit</div>
+                        <div class="info-value">₦{{ lease.security_deposit|floatformat:0 }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Days Remaining</div>
+                        <div class="info-value">
+                            {% if lease.status == 'ACTIVE' %}
+                                {% with days=lease.days_remaining %}
+                                    {% if days > 90 %}
+                                        <span class="days-pill ok">{{ days }} days</span>
+                                    {% elif days > 30 %}
+                                        <span class="days-pill warning">{{ days }} days</span>
+                                    {% else %}
+                                        <span class="days-pill urgent">{{ days }} days</span>
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <span class="days-pill urgent">—</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if lease.notes %}
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-label">Notes</div>
+                        <div class="info-value" style="font-family:'DM Mono',monospace; font-size:0.82rem; line-height:1.7; color:var(--muted);">
+                            {{ lease.notes }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── PAYMENT HISTORY ─── -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <h2>💰 Payment History</h2>
+                <a href="#" class="btn btn-secondary" style="padding:0.35rem 0.9rem; font-size:0.7rem;">
+                    + Record Payment
+                </a>
+            </div>
+            <div class="detail-card-body">
+
+                {% if payments %}
+                    <table class="payment-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Reference</th>
+                                <th>Method</th>
+                                <th style="text-align:right;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td>{{ payment.payment_date|date:"d M Y" }}</td>
+                                <td>{{ payment.reference|default:"—" }}</td>
+                                <td>{{ payment.get_payment_method_display|default:"—" }}</td>
+                                <td style="text-align:right;" class="payment-amount">
+                                    ₦{{ payment.amount|floatformat:0 }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <!-- Summary row -->
+                    <div class="payment-summary">
+                        <div class="payment-summary-item">
+                            <div class="payment-summary-label">Total Paid</div>
+                            <div class="payment-summary-value paid">
+                                ₦{{ total_paid|floatformat:0 }}
+                            </div>
+                        </div>
+                        <div class="payment-summary-item">
+                            <div class="payment-summary-label">Monthly Rent</div>
+                            <div class="payment-summary-value">
+                                ₦{{ lease.monthly_rent|floatformat:0 }}
+                            </div>
+                        </div>
+                        <div class="payment-summary-item">
+                            <div class="payment-summary-label">Amount Due</div>
+                            <div class="payment-summary-value {% if amount_due > 0 %}due{% endif %}">
+                                ₦{{ amount_due|floatformat:0 }}
+                            </div>
+                        </div>
+                    </div>
+
+                {% else %}
+                    <div class="no-payments">
+                        No payments recorded for this lease yet.
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div><!-- /detail-main -->
+
+
+    <!-- =====================================================
+         RIGHT — SIDEBAR
+         ===================================================== -->
+    <div class="detail-sidebar">
+
+        <!-- ─── TENANT INFO ─── -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <h2>👤 Tenant</h2>
+            </div>
+            <div class="detail-card-body">
+
+                <!-- Name / email -->
+                <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem;">
+                    <div style="
+                        width:44px; height:44px;
+                        border-radius:50%;
+                        background:var(--accent);
+                        display:flex; align-items:center; justify-content:center;
+                        font-family:'Syne',sans-serif;
+                        font-weight:800;
+                        color:#0a0c0f;
+                        font-size:1rem;
+                        flex-shrink:0;
+                    ">
+                        {{ lease.tenant.username|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <div style="font-family:'Syne',sans-serif; font-weight:700; color:var(--text); font-size:0.95rem;">
+                            {{ lease.tenant.get_full_name|default:lease.tenant.username }}
+                        </div>
+                        <div style="font-size:0.78rem; color:var(--muted);">
+                            {{ lease.tenant.email }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency contact (if profile exists) -->
+                {% if tenant_profile %}
+                    <div style="border-top:1px solid var(--border); padding-top:1rem;">
+                        <div class="info-label" style="margin-bottom:0.75rem;">Emergency Contact</div>
+
+                        {% if tenant_profile.emergency_contact_name %}
+                        <div class="info-item" style="margin-bottom:0.6rem;">
+                            <div class="info-label">Name</div>
+                            <div class="info-value">{{ tenant_profile.emergency_contact_name }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if tenant_profile.emergency_contact_phone %}
+                        <div class="info-item" style="margin-bottom:0.6rem;">
+                            <div class="info-label">Phone</div>
+                            <div class="info-value">{{ tenant_profile.emergency_contact_phone }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if tenant_profile.emergency_contact_relationship %}
+                        <div class="info-item">
+                            <div class="info-label">Relationship</div>
+                            <div class="info-value">{{ tenant_profile.emergency_contact_relationship }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div style="border-top:1px solid var(--border); padding-top:1rem;">
+                        <p style="font-size:0.78rem; color:var(--muted);">No tenant profile on file.</p>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <!-- ─── PROPERTY & UNIT ─── -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <h2>🏢 Property & Unit</h2>
+            </div>
+            <div class="detail-card-body">
+                <div class="info-item" style="margin-bottom:1rem;">
+                    <div class="info-label">Property</div>
+                    <div class="info-value large">{{ lease.unit.property.name }}</div>
+                </div>
+                <div class="info-item" style="margin-bottom:1rem;">
+                    <div class="info-label">Unit Number</div>
+                    <div class="info-value">{{ lease.unit.unit_number }}</div>
+                </div>
+                {% if lease.unit.property.address %}
+                <div class="info-item">
+                    <div class="info-label">Address</div>
+                    <div class="info-value" style="font-size:0.82rem; line-height:1.5;">
+                        {{ lease.unit.property.address }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ─── AUDIT ─── -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <h2>🕐 Audit</h2>
+            </div>
+            <div class="detail-card-body">
+                <div class="info-item" style="margin-bottom:0.75rem;">
+                    <div class="info-label">Created By</div>
+                    <div class="info-value">
+                        {{ lease.created_by.get_full_name|default:lease.created_by.username|default:"—" }}
+                    </div>
+                </div>
+                <div class="info-item" style="margin-bottom:0.75rem;">
+                    <div class="info-label">Created At</div>
+                    <div class="info-value">{{ lease.created_at|date:"d M Y, H:i" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Last Updated</div>
+                    <div class="info-value">{{ lease.updated_at|date:"d M Y, H:i" }}</div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /detail-sidebar -->
+
+</div><!-- /detail-grid -->
+
+{% endblock %}

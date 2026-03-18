@@ -5,146 +5,337 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/properties.css' %}">
+<link rel="stylesheet" href="{% static 'css/carousel.css' %}">
+<style>
+    /* Property detail specific styles */
+    .property-detail-wrapper {
+        max-width: 1800px; /* Increased from 1400px */
+        margin: 0 auto;
+        padding: 0 1rem; /* Add some padding on sides */
+    }
+    
+    .media-section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    /* Carousel improvements */
+    .carousel-container {
+        position: relative;
+        width: 100%;
+        height: 700px; /* Increased from 600px */
+        background: #000;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    
+    .carousel-slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .carousel-slide.active {
+        opacity: 1;
+        z-index: 1;
+    }
+    
+    .carousel-slide img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    .video-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        height: 0;
+        overflow: hidden;
+        border-radius: 4px;
+    }
+    
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 4px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<!-- PAGE HEADER -->
-<div class="page-header">
-    <h1 class="page-title">Property Details</h1>
-    <div class="page-actions">
-        <a href="{% url 'property_list' %}" class="btn btn-secondary">← Back to Properties</a>
-        <a href="{% url 'property_update' property.pk %}" class="btn btn-secondary">Edit Property</a>
-        <a href="{% url 'property_delete' property.pk %}" class="btn btn-secondary">Delete Property</a>
+<div class="property-detail-wrapper">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h1 class="page-title">Property Details</h1>
+        <div class="page-actions">
+            <a href="{% url 'property_list' %}" class="btn btn-secondary">← Back to Properties</a>
+            <a href="{% url 'property_image_upload' property.pk %}" class="btn btn-secondary">+ Add Images</a>
+            <a href="{% url 'property_update' property.pk %}" class="btn btn-secondary">Edit Property</a>
+            <a href="{% url 'property_delete' property.pk %}" class="btn btn-secondary">Delete Property</a>
+        </div>
     </div>
-</div>
 
-<!-- PROPERTY INFORMATION -->
-<div class="property-header">
-
-    {% if property.image %}
-    <img src="{{ property.image.url }}" alt="{{ property.name }}" 
-         style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 4px; margin-bottom: 1rem;">
+    <!-- PROPERTY IMAGES CAROUSEL -->
+    {% if property.images.all %}
+    <div class="media-section">
+        <div class="carousel-container">
+            {% for image in property.images.all %}
+            <div class="carousel-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" data-caption="{{ image.caption|default:'' }}">
+                <img src="{{ image.image.url }}" alt="{{ image.caption|default:'Property Image' }}">
+            </div>
+            {% endfor %}
+            
+            <!-- Navigation Arrows -->
+            <button class="carousel-arrow carousel-arrow-left" onclick="navigateCarousel(-1)">‹</button>
+            <button class="carousel-arrow carousel-arrow-right" onclick="navigateCarousel(1)">›</button>
+            
+            <!-- Image Counter -->
+            <div class="carousel-counter">
+                <span id="slideCounter">1</span> / {{ property.images.count }}
+            </div>
+            
+            <!-- Caption -->
+            <div class="carousel-caption" id="slideCaption"></div>
+        </div>
+        
+        <!-- Thumbnails -->
+        <div class="carousel-thumbnails">
+            {% for image in property.images.all %}
+            <img src="{{ image.image.url }}" 
+                 alt="{{ image.caption }}" 
+                 class="carousel-thumbnail {% if forloop.first %}active{% endif %}"
+                 data-index="{{ forloop.counter0 }}"
+                 onclick="jumpToSlide({{ forloop.counter0 }})">
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <!-- No images placeholder -->
+    <div class="media-section">
+        <div class="carousel-placeholder" style="height: 400px; display: flex; align-items: center; justify-content: center; background: var(--surface2); border-radius: 4px;">
+            <div style="text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;">📷</div>
+                <div style="color: var(--muted); font-size: 1rem; margin-bottom: 1rem;">No images yet</div>
+                <a href="{% url 'property_image_upload' property.pk %}" class="btn btn-primary">Upload First Image</a>
+            </div>
+        </div>
+    </div>
     {% endif %}
 
-    <!-- ADD VIDEO EMBED -->
+    <!-- PROPERTY VIDEO -->
     {% if property.video_url %}
-    <div style="margin-bottom: 1rem;">
+    <div class="media-section">
         {% with property.get_video_embed_url as embed_url %}
             {% if embed_url %}
-            <iframe 
-                width="100%" 
-                height="400" 
-                src="{{ embed_url }}" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
-                style="border-radius: 4px;">
-            </iframe>
+            <div class="video-container">
+                <iframe 
+                    src="{{ embed_url }}" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
             {% else %}
-            <p style="color: var(--muted); font-size: 0.85rem;">
+            <p style="color: var(--muted); font-size: 0.85rem; text-align: center; padding: 2rem;">
                 <a href="{{ property.video_url }}" target="_blank" style="color: var(--accent);">View Property Video →</a>
             </p>
             {% endif %}
         {% endwith %}
     </div>
     {% endif %}
-    
-    <h2 class="property-title">{{ property.name }}</h2>
-    <p class="property-address">
-        📍 {{ property.address }}, {{ property.city }}{% if property.state %}, {{ property.state }}{% endif %}
-    </p>
-    
-    {% if property.description %}
-    <div class="property-description">
-        {{ property.description }}
-    </div>
-    {% endif %}
-    
-    <div class="property-meta">
-        <div class="property-meta-item">
-            <div class="property-meta-label">Owner</div>
-            <div class="property-meta-value">{{ property.owner.get_full_name|default:property.owner.username }}</div>
-        </div>
+
+    <!-- PROPERTY INFORMATION -->
+    <div class="property-header">
+        <h2 class="property-title">{{ property.name }}</h2>
+        <p class="property-address">
+            📍 {{ property.address }}, {{ property.city }}{% if property.state %}, {{ property.state }}{% endif %}
+        </p>
         
-        {% if property.manager %}
-        <div class="property-meta-item">
-            <div class="property-meta-label">Manager</div>
-            <div class="property-meta-value">{{ property.manager.get_full_name|default:property.manager.username }}</div>
+        {% if property.description %}
+        <div class="property-description">
+            {{ property.description }}
         </div>
         {% endif %}
         
-        <div class="property-meta-item">
-            <div class="property-meta-label">Created</div>
-            <div class="property-meta-value">{{ property.created_at|date:"M d, Y" }}</div>
-        </div>
-    </div>
-</div>
-
-<!-- STATISTICS -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-label">Total Units</div>
-        <div class="stat-value">{{ total_units }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Occupied</div>
-        <div class="stat-value">{{ occupied_units }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Vacant</div>
-        <div class="stat-value">{{ vacant_units }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Occupancy Rate</div>
-        <div class="stat-value">{{ occupancy_rate }}%</div>
-    </div>
-</div>
-
-<!-- UNITS SECTION -->
-<div class="section-header">
-    <h3 class="section-title">Units ({{ total_units }})</h3>
-    <a href="{% url 'unit_create' property.pk %}" class="btn btn-primary">+ Add Unit</a>
-</div>
-
-{% if units %}
-    <div class="units-grid">
-        {% for unit in units %}
-        <div class="unit-card">
-            <div class="unit-info">
-                <h4 class="unit-number">Unit {{ unit.unit_number }}</h4>
-                <div class="unit-details">
-                    {% if unit.floor is not None %}
-                    <span class="unit-detail">🏢 Floor {{ unit.floor }}</span>
-                    {% endif %}
-                    <span class="unit-detail">🛏️ {{ unit.bedrooms }} BR</span>
-                    <span class="unit-detail">🚿 {{ unit.bathrooms }} BA</span>
-                    {% if unit.square_feet %}
-                    <span class="unit-detail">📐 {{ unit.square_feet }} sq ft</span>
-                    {% endif %}
-                </div>
+        <div class="property-meta">
+            <div class="property-meta-item">
+                <div class="property-meta-label">Owner</div>
+                <div class="property-meta-value">{{ property.owner.get_full_name|default:property.owner.username }}</div>
             </div>
-            <div class="unit-actions">
-                <span class="unit-rent">₦{{ unit.rent_amount|floatformat:0 }}/mo</span>
-                <span class="unit-status {% if unit.is_occupied %}occupied{% else %}vacant{% endif %}">
-                    {{ unit.get_status_display }}
-                </span>
-                <div class="property-actions">
-                    <a href="{% url 'unit_update' unit.pk %}" class="btn btn-secondary btn-icon">Edit</a>
-                    <a href="{% url 'unit_delete' unit.pk %}" class="btn btn-secondary btn-icon">Delete</a>
-                </div>
+            
+            {% if property.manager %}
+            <div class="property-meta-item">
+                <div class="property-meta-label">Manager</div>
+                <div class="property-meta-value">{{ property.manager.get_full_name|default:property.manager.username }}</div>
+            </div>
+            {% endif %}
+            
+            <div class="property-meta-item">
+                <div class="property-meta-label">Created</div>
+                <div class="property-meta-value">{{ property.created_at|date:"M d, Y" }}</div>
             </div>
         </div>
-        {% endfor %}
     </div>
-{% else %}
-    <!-- NO UNITS YET -->
-    <div class="empty-state">
-        <div class="empty-state-icon">📦</div>
-        <h3 class="empty-state-title">No Units Yet</h3>
-        <p class="empty-state-text">
-            Add units to this property to start managing rentals.
-        </p>
-        <a href="{% url 'unit_create' property.pk %}" class="btn btn-primary">+ Add First Unit</a>
+
+    <!-- STATISTICS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Units</div>
+            <div class="stat-value">{{ total_units }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Occupied</div>
+            <div class="stat-value">{{ occupied_units }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Vacant</div>
+            <div class="stat-value">{{ vacant_units }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Occupancy Rate</div>
+            <div class="stat-value">{{ occupancy_rate }}%</div>
+        </div>
     </div>
-{% endif %}
+
+    <!-- UNITS SECTION -->
+    <div class="section-header">
+        <h3 class="section-title">Units ({{ total_units }})</h3>
+        <a href="{% url 'unit_create' property.pk %}" class="btn btn-primary">+ Add Unit</a>
+    </div>
+
+    {% if units %}
+        <div class="units-grid">
+            {% for unit in units %}
+            <div class="unit-card">
+                <!-- Unit Image Thumbnail -->
+                {% if unit.images.first %}
+                <img src="{{ unit.images.first.image.url }}" alt="Unit {{ unit.unit_number }}" 
+                     style="width: 100px; height: 80px; object-fit: cover; border-radius: 4px; margin-right: 1rem;">
+                {% else %}
+                <div style="width: 100px; height: 80px; background: var(--surface2); border-radius: 4px; margin-right: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🏠</div>
+                {% endif %}
+                
+                <div class="unit-info">
+                    <h4 class="unit-number">Unit {{ unit.unit_number }}</h4>
+                    <div class="unit-details">
+                        {% if unit.floor is not None %}
+                        <span class="unit-detail">🏢 Floor {{ unit.floor }}</span>
+                        {% endif %}
+                        <span class="unit-detail">🛏️ {{ unit.bedrooms }} BR</span>
+                        <span class="unit-detail">🚿 {{ unit.bathrooms }} BA</span>
+                        {% if unit.square_feet %}
+                        <span class="unit-detail">📐 {{ unit.square_feet }} sq ft</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="unit-actions">
+                    <span class="unit-rent">₦{{ unit.rent_amount|floatformat:0 }}/mo</span>
+                    <span class="unit-status {% if unit.is_occupied %}occupied{% else %}vacant{% endif %}">
+                        {{ unit.get_status_display }}
+                    </span>
+                    <div class="property-actions">
+                        <a href="{% url 'unit_image_upload' unit.pk %}" class="btn btn-secondary btn-icon">📷</a>
+                        <a href="{% url 'unit_update' unit.pk %}" class="btn btn-secondary btn-icon">Edit</a>
+                        <a href="{% url 'unit_delete' unit.pk %}" class="btn btn-secondary btn-icon">Delete</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- NO UNITS YET -->
+        <div class="empty-state">
+            <div class="empty-state-icon">📦</div>
+            <h3 class="empty-state-title">No Units Yet</h3>
+            <p class="empty-state-text">
+                Add units to this property to start managing rentals.
+            </p>
+            <a href="{% url 'unit_create' property.pk %}" class="btn btn-primary">+ Add First Unit</a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Carousel functionality
+let currentIndex = 0;
+const slides = document.querySelectorAll('.carousel-slide');
+const thumbs = document.querySelectorAll('.carousel-thumbnail');
+const totalSlides = slides.length;
+
+function updateCarousel(index) {
+    // Ensure index is within bounds
+    if (index < 0) index = totalSlides - 1;
+    if (index >= totalSlides) index = 0;
+    
+    // Remove active class from all
+    slides.forEach(slide => slide.classList.remove('active'));
+    thumbs.forEach(thumb => thumb.classList.remove('active'));
+    
+    // Add active class to current
+    if (slides[index]) {
+        slides[index].classList.add('active');
+        
+        // Update counter
+        const counter = document.getElementById('slideCounter');
+        if (counter) counter.textContent = index + 1;
+        
+        // Update caption
+        const caption = slides[index].getAttribute('data-caption');
+        const captionEl = document.getElementById('slideCaption');
+        if (captionEl) {
+            if (caption && caption.trim() !== '' && caption !== 'None') {
+                captionEl.textContent = caption;
+                captionEl.style.display = 'block';
+            } else {
+                captionEl.style.display = 'none';
+            }
+        }
+    }
+    
+    if (thumbs[index]) {
+        thumbs[index].classList.add('active');
+    }
+    
+    currentIndex = index;
+}
+
+function navigateCarousel(direction) {
+    updateCarousel(currentIndex + direction);
+}
+
+function jumpToSlide(index) {
+    updateCarousel(index);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+    if (totalSlides > 0) {
+        if (e.key === 'ArrowRight') navigateCarousel(1);
+        if (e.key === 'ArrowLeft') navigateCarousel(-1);
+    }
+});
+
+// Initialize carousel
+if (totalSlides > 0) {
+    updateCarousel(0);
+}
+</script>
 {% endblock %}

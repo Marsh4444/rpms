@@ -3,7 +3,22 @@
 # ============================================================================
 
 from django.contrib import admin
-from .models import Property, Unit
+from .models import Property, Unit, UnitImage, PropertyImage
+
+
+# ============================================================================
+# PROPERTY IMAGE ADMIN
+# ============================================================================
+
+class PropertyImageInline(admin.TabularInline):
+    """
+    Show property images inline when editing a property.
+    
+    This allows adding multiple images directly from the property edit page.
+    """
+    model = PropertyImage
+    extra = 3  # Show 3 empty image fields by default
+    fields = ['image', 'caption', 'order']
 
 
 # ============================================================================
@@ -30,6 +45,8 @@ class PropertyAdmin(admin.ModelAdmin):
     ]
     # Shows: name | city | owner | manager | units | occupied | rate | created
 
+    inlines = [PropertyImageInline] 
+    
     # Filters in the right sidebar
     list_filter = ['city', 'owner', 'manager', 'created_at']
     # Can filter by: city, owner (landlord), manager, creation date
@@ -61,6 +78,19 @@ class PropertyAdmin(admin.ModelAdmin):
 
     # How many properties to show per page
     list_per_page = 20
+
+
+# ============================================================================
+# UNIT IMAGE ADMIN
+# ============================================================================
+
+class UnitImageInline(admin.TabularInline):
+    """
+    Show unit images inline when editing a unit.
+    """
+    model = UnitImage
+    extra = 3
+    fields = ['image', 'caption', 'order']
 
 
 # ============================================================================
@@ -106,6 +136,8 @@ class UnitAdmin(admin.ModelAdmin):
     # Can search by: unit number, property name, property city
     # property__name = searches in related Property model
 
+    inlines = [UnitImageInline]  # Add this line
+
     # Fields shown when viewing/editing a unit
     fieldsets = (
         ('Property', {
@@ -136,3 +168,12 @@ class UnitAdmin(admin.ModelAdmin):
     # How many units to show per page
     list_per_page = 50
     # More than properties (properties have many units)
+
+
+    
+
+
+
+
+
+

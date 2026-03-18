@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Image - RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/properties.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="confirm-delete">
+    <div class="confirm-icon">⚠️</div>
+    <h1 class="confirm-title">Delete Image?</h1>
+    
+    <img src="{{ object.image.url }}" alt="{{ object.caption }}" 
+         style="max-width: 300px; border-radius: 4px; margin: 1rem 0;">
+    
+    {% if object.caption %}
+    <p class="confirm-message">{{ object.caption }}</p>
+    {% endif %}
+    
+    <p class="confirm-message">This action cannot be undone.</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="confirm-actions">
+            <a href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-danger">Yes, Delete Image</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

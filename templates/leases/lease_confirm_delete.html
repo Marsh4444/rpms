@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Terminate Lease — RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/leases.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div style="max-width: 520px; margin: 0 auto;">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-text">
+            <h1>Terminate Lease</h1>
+            <p>This action cannot be undone</p>
+        </div>
+    </div>
+
+    <!-- Confirmation card -->
+    <div class="detail-card">
+        <div class="detail-card-header">
+            <h2>⚠️ Confirm Termination</h2>
+        </div>
+        <div class="detail-card-body">
+
+            <!-- Lease summary -->
+            <div style="
+                background: var(--surface2);
+                border: 1px solid var(--border);
+                border-left: 3px solid var(--danger);
+                border-radius: 2px;
+                padding: 1.25rem;
+                margin-bottom: 1.5rem;
+            ">
+                <div class="info-item" style="margin-bottom: 0.75rem;">
+                    <div class="info-label">Tenant</div>
+                    <div class="info-value">
+                        {{ object.tenant.get_full_name|default:object.tenant.username }}
+                    </div>
+                </div>
+                <div class="info-item" style="margin-bottom: 0.75rem;">
+                    <div class="info-label">Unit</div>
+                    <div class="info-value">
+                        {{ object.unit.property.name }} — {{ object.unit.unit_number }}
+                    </div>
+                </div>
+                <div class="info-item" style="margin-bottom: 0.75rem;">
+                    <div class="info-label">Period</div>
+                    <div class="info-value">
+                        {{ object.start_date|date:"d M Y" }} → {{ object.end_date|date:"d M Y" }}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Monthly Rent</div>
+                    <div class="info-value" style="color: var(--accent);">
+                        ₦{{ object.monthly_rent|floatformat:0 }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning text -->
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.7;">
+                Terminating this lease will permanently delete the record and
+                mark <strong style="color: var(--text);">{{ object.unit.unit_number }}</strong>
+                as vacant. Payment history linked to this lease will also be removed.
+            </p>
+
+            <!-- Buttons -->
+            <form method="post">
+                {% csrf_token %}
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    <a href="{% url 'lease_detail' object.pk %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary"
+                            style="background: var(--danger); color: var(--text);">
+                        Yes, Terminate Lease
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

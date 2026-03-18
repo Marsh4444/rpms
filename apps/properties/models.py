@@ -507,3 +507,118 @@ class Unit(models.Model):
         # - Check if under maintenance
         # - Check if reserved for incoming tenant
         # For now: simple True/False based on occupancy
+
+
+# ============================================================================
+# PROPERTY IMAGE MODEL (Multiple images per property)
+# ============================================================================
+
+class PropertyImage(models.Model):
+    """
+    Store multiple images for a single property.
+    
+    Relationship: Property (1) → PropertyImage (Many)
+    One property can have many images.
+    
+    Example:
+    - Sunset Apartments has 5 images (exterior, lobby, pool, gym, parking)
+    - Each image is a separate PropertyImage object
+    - All linked to the same Property via ForeignKey
+    """
+    
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name='images',
+        help_text="Property this image belongs to"
+    )
+    # CASCADE = when property is deleted, all its images are deleted too
+    # related_name='images' = property.images.all() gets all images
+    
+    image = models.ImageField(
+        upload_to='property_images/%Y/%m/%d/',
+        help_text="Property photo"
+    )
+    # upload_to with date = organizes by year/month/day
+    # Example: property_images/2024/03/16/photo.jpg
+    
+    caption = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Image caption or description (e.g., 'Main Entrance', 'Swimming Pool')"
+    )
+    
+    order = models.PositiveIntegerField(
+        default=0,
+        help_text="Display order (lower numbers first)"
+    )
+    # Allows you to control which image shows first
+    # order=0 shows first, order=1 second, etc.
+    
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['order', 'uploaded_at']
+        # Display images in order (lowest order number first)
+        # If same order, show oldest first
+        verbose_name = 'Property Image'
+        verbose_name_plural = 'Property Images'
+    
+    def __str__(self):
+        caption_text = self.caption if self.caption else f"Image {self.id}"
+        return f"{self.property.name} - {caption_text}"
+
+
+# ============================================================================
+# UNIT IMAGE MODEL (Multiple images per unit)
+# ============================================================================
+
+class UnitImage(models.Model):
+    """
+    Store multiple images for a single unit.
+    
+    Relationship: Unit (1) → UnitImage (Many)
+    One unit can have many images.
+    
+    Example:
+    - Unit 101 has 4 images (living room, bedroom, kitchen, bathroom)
+    - Each image is a separate UnitImage object
+    - All linked to Unit 101 via ForeignKey
+    """
+    
+    unit = models.ForeignKey(
+        Unit,
+        on_delete=models.CASCADE,
+        related_name='images',
+        help_text="Unit this image belongs to"
+    )
+    # related_name='images' = unit.images.all() gets all images
+    
+    image = models.ImageField(
+        upload_to='unit_images/%Y/%m/%d/',
+        help_text="Unit photo"
+    )
+    
+    caption = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Image caption (e.g., 'Living Room', 'Master Bedroom')"
+    )
+    
+    order = models.PositiveIntegerField(
+        default=0,
+        help_text="Display order"
+    )
+    
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['order', 'uploaded_at']
+        verbose_name = 'Unit Image'
+        verbose_name_plural = 'Unit Images'
+    
+    def __str__(self):
+        caption_text = self.caption if self.caption else f"Image {self.id}"
+        return f"Unit {self.unit.unit_number} - {caption_text}"
