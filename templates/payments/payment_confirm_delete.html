@@ -1,0 +1,70 @@
+<!-- ================================================================
+     SAVE AS: templates/payments/payment_confirm_delete.html
+     ================================================================ -->
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Delete Payment — RPMS{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/payments.css' %}">{% endblock %}
+
+{% block content %}
+<div style="max-width: 520px; margin: 0 auto;">
+
+    <div class="page-header">
+        <div class="page-header-text">
+            <h1>Delete Payment</h1>
+            <p>This action cannot be undone</p>
+        </div>
+    </div>
+
+    <div class="confirm-card">
+        <div class="detail-card-header">
+            <h2>⚠️ Confirm Deletion</h2>
+        </div>
+        <div class="detail-card-body">
+
+            <!-- Payment summary -->
+            <div style="background:var(--surface2); border:1px solid var(--border); border-radius:2px; padding:1.25rem; margin-bottom:1.5rem;">
+                <div class="info-item" style="margin-bottom:0.75rem;">
+                    <div class="info-label">Tenant</div>
+                    <div class="info-value">
+                        {{ object.lease.tenant.get_full_name|default:object.lease.tenant.username }}
+                    </div>
+                </div>
+                <div class="info-item" style="margin-bottom:0.75rem;">
+                    <div class="info-label">Payment Month</div>
+                    <div class="info-value">{{ object.payment_month|date:"F Y" }}</div>
+                </div>
+                <div class="info-item" style="margin-bottom:0.75rem;">
+                    <div class="info-label">Amount</div>
+                    <div class="info-value" style="color:var(--accent);">
+                        ₦{{ object.amount|floatformat:0 }}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Paid On</div>
+                    <div class="info-value">{{ object.payment_date|date:"d M Y" }}</div>
+                </div>
+            </div>
+
+            <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1.5rem; line-height:1.7;">
+                Deleting this record will permanently remove this payment from the system.
+                The tenant's payment history for
+                <strong style="color:var(--text);">{{ object.payment_month|date:"F Y" }}</strong>
+                will be erased.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                    <a href="{% url 'payment_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary"
+                            style="background:var(--danger); color:var(--text);">
+                        Yes, Delete Payment
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

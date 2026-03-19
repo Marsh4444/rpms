@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Detail — RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/payments.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="action-bar">
+    <div class="action-bar-left">
+        <a href="{% url 'payment_list' %}" class="back-link">← Back to Payments</a>
+        {% if is_late %}
+            <span class="badge badge-late">Late ({{ days_late }} day{{ days_late|pluralize }})</span>
+        {% elif payment.payment_date < payment.payment_month %}
+            <span class="badge badge-early">Early</span>
+        {% else %}
+            <span class="badge badge-ontime">On Time</span>
+        {% endif %}
+    </div>
+    <div class="action-bar-right">
+        <a href="{% url 'payment_update' payment.pk %}" class="btn btn-secondary">Edit</a>
+        <a href="{% url 'payment_delete' payment.pk %}"
+           class="btn btn-secondary"
+           style="border-color: rgba(224,92,92,0.4); color: var(--danger);">
+            Delete
+        </a>
+    </div>
+</div>
+
+<div class="detail-grid">
+
+    <!-- MAIN -->
+    <div class="detail-main">
+
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <h2>💳 Payment Details</h2>
+                <span style="font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted);">
+                    #{{ payment.pk }}
+                </span>
+            </div>
+            <div class="detail-card-body">
+
+                <!-- Late warning banner -->
+                {% if is_late %}
+                <div class="late-warning">
+                    ⚠️ This payment was <strong>{{ days_late }} day{{ days_late|pluralize }}</strong> late.
+                    {% if late_fee > 0 %}
+                        A late fee of <strong>₦{{ late_fee|floatformat:0 }}</strong> may apply.
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="info-grid">
+
+                    <div class="info-item">
+                        <div class="info-label">Amount Paid</div>
+                        <div class="info-value highlight">₦{{ payment.amount|floatformat:0 }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Payment Month</div>
+                        <div class="info-value"
+                             style="font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700;">
+                            {{ payment.payment_month|date:"F Y" }}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Payment Date</div>
+                        <div class="info-value">{{ payment.payment_date|date:"d M Y" }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">{{ payment_status }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Payment Method</div>
+                        <div class="info-value">{{ payment.get_payment_method_display }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Reference Number</div>
+                        <div class="info-value">{{ payment.reference_number|default:"—" }}</div>
+                    </div>
+
+                    {% if payment.notes %}
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-label">Notes</div>
+                        <div class="info-value"
+                             style="font-size:0.85rem; line-height:1.7; color:var(--muted);">
+                            {{ payment.notes }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /detail-main -->
+
+    <!-- SIDEBAR -->
+    <div class="detail-sidebar">
+
+        <div class="detail-card">
+            <div class="detail-card-header"><h2>🏢 Lease & Tenant</h2></div>
+            <div class="detail-card-body">
+
+                <div class="info-item" style="margin-bottom:1rem;">
+                    <div class="info-label">Tenant</div>
+                    <div class="info-value"
+                         style="font-family:'Syne',sans-serif; font-size:1rem; font-weight:700;">
+                        {{ payment.lease.tenant.get_full_name|default:payment.lease.tenant.username }}
+                    </div>
+                </div>
+
+                <div class="info-item" style="margin-bottom:1rem;">
+                    <div class="info-label">Property</div>
+                    <div class="info-value">{{ payment.lease.unit.property.name }}</div>
+                </div>
+
+                <div class="info-item" style="margin-bottom:1rem;">
+                    <div class="info-label">Unit</div>
+                    <div class="info-value">{{ payment.lease.unit.unit_number }}</div>
+                </div>
+
+                <div class="info-item" style="margin-bottom:1rem;">
+                    <div class="info-label">Monthly Rent</div>
+                    <div class="info-value" style="color:var(--accent);">
+                        ₦{{ payment.lease.monthly_rent|floatformat:0 }}
+                    </div>
+                </div>
+
+                <div style="padding-top:1rem; border-top:1px solid var(--border);">
+                    <a href="{% url 'lease_detail' payment.lease.pk %}"
+                       class="btn btn-secondary"
+                       style="width:100%; text-align:center; display:block;">
+                        View Lease →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-card-header"><h2>🕐 Audit</h2></div>
+            <div class="detail-card-body">
+                <div class="info-item" style="margin-bottom:0.75rem;">
+                    <div class="info-label">Recorded By</div>
+                    <div class="info-value">
+                        {{ payment.recorded_by.get_full_name|default:payment.recorded_by.username|default:"—" }}
+                    </div>
+                </div>
+                <div class="info-item" style="margin-bottom:0.75rem;">
+                    <div class="info-label">Created At</div>
+                    <div class="info-value">{{ payment.created_at|date:"d M Y, H:i" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Last Updated</div>
+                    <div class="info-value">{{ payment.updated_at|date:"d M Y, H:i" }}</div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /detail-sidebar -->
+
+</div><!-- /detail-grid -->
+
+{% endblock %}

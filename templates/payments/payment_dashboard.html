@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Dashboard — RPMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/payments.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="page-header-text">
+        <h1>Payment Dashboard</h1>
+        <p>Overview of rent collection across all properties</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'payment_list' %}" class="btn btn-secondary">All Payments</a>
+        <a href="{% url 'payment_create' %}" class="btn btn-primary">+ Record Payment</a>
+    </div>
+</div>
+
+<!-- STATS STRIP -->
+<div class="stats-strip">
+    <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div>
+            <div class="stat-label">This Month</div>
+            <div class="stat-value money">₦{{ this_month_total|floatformat:0 }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div>
+            <div class="stat-label">This Year</div>
+            <div class="stat-value money">₦{{ this_year_total|floatformat:0 }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div>
+            <div class="stat-label">Paid This Month</div>
+            <div class="stat-value ontime">{{ this_month_count }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">⚠️</div>
+        <div>
+            <div class="stat-label">Overdue</div>
+            <div class="stat-value late">{{ overdue_count }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+
+    <!-- LEFT: Monthly bar chart -->
+    <div class="detail-card">
+        <div class="detail-card-header">
+            <h2>📈 Last 6 Months</h2>
+        </div>
+        <div class="detail-card-body">
+            {% if monthly_data %}
+                <!-- Calculate max for relative bar heights -->
+                {% with max_val=monthly_data|last %}
+                <div class="monthly-bar-chart">
+                    {% for month in monthly_data %}
+                    <div class="bar-group">
+                        {% if month.total > 0 %}
+                            <div style="font-family:'DM Mono',monospace; font-size:0.6rem; color:var(--muted); margin-bottom:0.25rem;">
+                                ₦{{ month.total|floatformat:0 }}
+                            </div>
+                        {% endif %}
+                        <div class="bar {% if forloop.last %}current{% endif %}"
+                             style="height: {% if month.total > 0 %}{{ month.total|floatformat:0 }}{% else %}4{% endif %}px; max-height:80px; min-height:{% if month.total > 0 %}8{% else %}4{% endif %}px;">
+                        </div>
+                        <div class="bar-label">{{ month.month }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endwith %}
+
+                <!-- Simple text summary instead of complex chart math -->
+                <div style="margin-top:1.5rem; display:flex; flex-direction:column; gap:0.5rem;">
+                    {% for month in monthly_data %}
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid var(--border);">
+                        <span style="font-size:0.82rem; color:var(--muted);">{{ month.month }}</span>
+                        <span style="font-family:'DM Mono',monospace; font-size:0.85rem; color:{% if month.total > 0 %}var(--accent){% else %}var(--muted){% endif %};">
+                            {% if month.total > 0 %}₦{{ month.total|floatformat:0 }}{% else %}—{% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="color:var(--muted); font-size:0.85rem; text-align:center; padding:2rem 0;">
+                    No payment data yet.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- RIGHT column -->
+    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+
+        <!-- Overdue leases -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <h2>⚠️ Not Paid This Month</h2>
+            </div>
+            <div class="detail-card-body">
+                {% if overdue_leases %}
+                    <div class="overdue-list">
+                        {% for lease in overdue_leases %}
+                        <div class="overdue-item">
+                            <div>
+                                <div class="overdue-name">
+                                    {{ lease.tenant.get_full_name|default:lease.tenant.username }}
+                                </div>
+                                <div class="overdue-unit">
+                                    {{ lease.unit.property.name }} — {{ lease.unit.unit_number }}
+                                </div>
+                            </div>
+                            <div class="overdue-amount">
+                                ₦{{ lease.monthly_rent|floatformat:0 }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p style="color:var(--success); font-size:0.85rem; text-align:center; padding:1rem 0;">
+                        ✅ All active tenants have paid this month!
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent payments -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <h2>🕐 Recent Payments</h2>
+            </div>
+            <div class="detail-card-body">
+                {% if recent_payments %}
+                    <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                        {% for payment in recent_payments %}
+                        <a href="{% url 'payment_detail' payment.pk %}"
+                           style="display:flex; justify-content:space-between; align-items:center;
+                                  padding:0.75rem; background:var(--surface2); border:1px solid var(--border);
+                                  border-radius:2px; text-decoration:none; transition:border-color 0.2s;"
+                           onmouseover="this.style.borderColor='var(--accent)'"
+                           onmouseout="this.style.borderColor='var(--border)'">
+                            <div>
+                                <div style="font-size:0.85rem; color:var(--text);">
+                                    {{ payment.lease.tenant.get_full_name|default:payment.lease.tenant.username }}
+                                </div>
+                                <div style="font-size:0.72rem; color:var(--muted);">
+                                    {{ payment.payment_month|date:"F Y" }} · {{ payment.payment_date|date:"d M" }}
+                                </div>
+                            </div>
+                            <div style="font-family:'DM Mono',monospace; font-size:0.9rem; color:var(--accent);">
+                                ₦{{ payment.amount|floatformat:0 }}
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    <div style="margin-top:1rem;">
+                        <a href="{% url 'payment_list' %}" class="btn btn-secondary" style="width:100%; text-align:center;">
+                            View All Payments →
+                        </a>
+                    </div>
+                {% else %}
+                    <p style="color:var(--muted); font-size:0.85rem; text-align:center; padding:1rem 0;">
+                        No payments recorded yet.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div><!-- /right column -->
+
+</div><!-- /dashboard-grid -->
+
+{% endblock %}
