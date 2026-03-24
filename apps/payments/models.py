@@ -269,91 +269,43 @@ class Payment(models.Model):
             })
     
     
-    # ========================================================================
-    # CUSTOM METHODS
+   # ========================================================================
+    # PAYMENT STATUS METHODS (FIXED - USE 5-DAY GRACE PERIOD)
     # ========================================================================
     
-    def save(self, *args, **kwargs):
-        """
-        Override save to ensure payment_month is always first day of month.
-        """
-        # Normalize payment_month to first day
-        if self.payment_month:
-            self.payment_month = self.payment_month.replace(day=1)
-        
-        # Call validation
-        self.full_clean()
-        
-        # Save the payment
-        super().save(*args, **kwargs)
-    
+    GRACE_PERIOD_DAYS = 5
     
     def expected_payment_date(self):
-        """
-        Calculate when payment was due (first day of payment_month).
-        """
-        return self.payment_month
-        # Since payment_month is already the first day, this is the due date
-        # Example: January payment → due on 2024-01-01
-    
+        """Calculate when payment should be made (with grace period)."""
+        from datetime import timedelta
+        return self.payment_month + timedelta(days=self.GRACE_PERIOD_DAYS)
     
     def is_late(self):
-        """
-        Check if payment was made after the due date.
-        """
+        """Check if payment was made after the grace period."""
         return self.payment_date > self.expected_payment_date()
-        # If paid on Jan 5, but due on Jan 1 → True (late)
-        # If paid on Dec 28, but due on Jan 1 → False (early!)
-    
     
     def days_late(self):
-        """
-        Calculate how many days late the payment was.
-        Returns 0 if paid on time or early.
-        """
-        if self.is_late():
-            return (self.payment_date - self.expected_payment_date()).days
-        return 0
-        # Examples:
-        # - Paid Jan 5, due Jan 1 → 4 days late
-        # - Paid Dec 28, due Jan 1 → 0 (not late)
-        # - Paid Jan 1, due Jan 1 → 0 (on time!)
-    
-    
-    def late_fee_applicable(self, grace_period_days=5, late_fee_amount=Decimal('5000.00')):
-        """
-        Check if late fee should be charged.
+        """Calculate how many days late the payment was."""
+        if not self.is_late():
+            return 0
         
-        Args:
-            grace_period_days: Number of days grace period (default 5)
-            late_fee_amount: Late fee amount (default ₦5,000)
-        
-        Returns:
-            Decimal: Late fee amount if applicable, otherwise 0
-        """
-        days_late = self.days_late()
-        if days_late > grace_period_days:
-            return late_fee_amount
+        expected = self.expected_payment_date()
+        delta = self.payment_date - expected
+        return delta.days
+    
+    def late_fee_applicable(self):
+        """Calculate late fee if applicable."""
+        from decimal import Decimal
+        if not self.is_late():
+            return Decimal('0.00')
         return Decimal('0.00')
-        # Example:
-        # - 3 days late, grace=5 → No fee
-        # - 7 days late, grace=5 → ₦5,000 fee
-        # - 0 days late → No fee
-        #
-        # This can be customized per property/lease later
-    
     
     def payment_status(self):
-        """
-        Return human-readable payment status.
-        """
+        """Get human-readable payment status."""
         if self.is_late():
-            return f"Late ({self.days_late()} days)"
-        elif self.payment_date < self.expected_payment_date():
+            days = self.days_late()
+            return f"Late ({days} day{'s' if days != 1 else ''})"
+        elif self.payment_date < self.payment_month:
             return "Early"
         else:
             return "On Time"
-        # Examples:
-        # - "Late (5 days)"
-        # - "Early"
-        # - "On Time"

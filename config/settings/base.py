@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'apps.leases',
     'apps.payments',
     'apps.maintenance',
+    'django_ratelimit',
 
 
     #default Django apps
