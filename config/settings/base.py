@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'apps.leases',
     'apps.payments',
     'apps.maintenance',
+
+    #third-party apps
     'django_ratelimit',
 
 
@@ -98,20 +100,38 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
+#===========================================================================
+# PASSWORD VALIDATION (Phase 17)
+# ============================================================================
+# Enforces strong password requirements for all new passwords.
+# Applied during: registration, pass=word change, password reset
+# ============================================================================
+
 AUTH_PASSWORD_VALIDATORS = [
     {
+        # Rejects passwords too similar to username/email
+        # Example: username "marshdev" → rejects "marshdev123"
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
+        # Minimum 8 characters required
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
     {
+        # Blocks 20,000 common passwords (built into Django)
+        # Rejects: "password", "admin123", "qwerty", etc.
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
+        # Rejects all-numeric passwords
+        # Blocks: "12345678", "19920415"
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
 
 
 # Internationalization
@@ -166,3 +186,37 @@ MESSAGE_TAGS = {
 HANDLER404 = 'django.views.defaults.page_not_found'
 HANDLER403 = 'django.views.defaults.permission_denied'
 HANDLER500 = 'django.views.defaults.server_error'
+
+# ============================================================================
+# SESSION SECURITY (Phase 17)
+# ============================================================================
+# Controls session lifetime and cookie protection
+# ============================================================================
+
+# Session expires after 30 minutes of inactivity
+SESSION_COOKIE_AGE = 1800  # 30 minutes in seconds
+
+# Session ends when browser closes
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# JavaScript cannot access session cookie (XSS protection)
+SESSION_COOKIE_HTTPONLY = True
+
+# CSRF protection for cookies
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+# ============================================================================
+# SECURITY HEADERS (Phase 17)
+# ============================================================================
+# HTTP headers that protect against common attacks
+# ============================================================================
+
+# Prevents browsers from MIME-sniffing content types
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Enables browser's XSS filter (older browsers)
+SECURE_BROWSER_XSS_FILTER = True
+
+# Prevents site from being embedded in iframes (clickjacking protection)
+X_FRAME_OPTIONS = 'DENY'
+

@@ -9,6 +9,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .forms import UserRegistrationForm
+from django_ratelimit.decorators import ratelimit
 from .models import User
 
 
@@ -37,61 +38,66 @@ def home(request):
 # LOGIN VIEW
 # ============================================================================
 
-@require_http_methods(["GET", "POST"])
+@ratelimit(key='ip', rate='5/m', method='POST', block=False)
 def login_view(request):
     """
-    Handle user login.
+    Login view with rate limiting (max 5 attempts per minute per IP).
     
-    GET: Display login form
-    POST: Process login credentials
-    
-    Flow:
-    1. User enters username and password
-    2. Django checks if credentials are valid
-    3. If valid: Log user in and redirect
-    4. If invalid: Show error message
+    GET:  Show login form
+    POST: Validate credentials, log in, redirect
     """
     
-    # If user is already logged in, redirect to home
-    if request.user.is_authenticated:
-        messages.info(request, 'You are already logged in.')
-        return redirect('home')
+    # Check if rate limit exceeded
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        messages.error(
+            request,
+            'Too many login attempts. Please wait a minute and try again.'
+        )
+        return render(request, 'users/login.html', {'form_blocked': True})
     
-    # Handle POST request (form submission)
+    # GET request - show form
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            return redirect('home')
+        return render(request, 'users/login.html')
+    
+    # POST request - handle login
     if request.method == 'POST':
-        # Get username and password from form
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
         
-        # Try to authenticate user
+        if not username or not password:
+            messages.error(request, 'Please enter both username and password.')
+            return render(request, 'users/login.html')
+        
+        # Authenticate user
         user = authenticate(request, username=username, password=password)
-        # authenticate() returns User object if valid, None if invalid
         
         if user is not None:
-            # Credentials are valid - log the user in
+            # SECURITY: Cycle session key to prevent session fixation
+            request.session.cycle_key()
+            
+            # Log user in
             login(request, user)
-            # login() creates a session for the user
             
-            # Show success message
-            messages.success(request, f'Welcome back, {user.username}!')
+            messages.success(
+                request,
+                f'Welcome back, {user.get_full_name() or user.username}!'
+            )
             
-            # Redirect to next page (or home if no next page)
-            next_page = request.GET.get('next', 'home')
-            # 'next' parameter used when login is required to access a page
-            # Example: Trying to access /properties/ without login
-            #   → Redirects to /login/?next=/properties/
-            #   → After login, redirects back to /properties/
+            # Redirect to 'next' page or home
+            next_url = request.GET.get('next') or request.POST.get('next')
+            if next_url and next_url.startswith('/'):
+                return redirect(next_url)
             
-            return redirect(next_page)
+            return redirect('home')
         else:
-            # Credentials are invalid
-            messages.error(request, 'Invalid username or password.')
-            # Error message will display in the template
-    
-    # Handle GET request (show form)
-    # Also handles POST with errors (re-display form)
-    form = AuthenticationForm()
-    return render(request, 'registration/login.html', {'form': form})
+            messages.error(
+                request,
+                'Invalid username or password. Please try again.'
+            )
+            return render(request, 'users/login.html', {'username': username})
 
 
 # ============================================================================

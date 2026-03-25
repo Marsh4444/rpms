@@ -69,6 +69,13 @@
             <button type="submit" class="btn-submit">
                 Sign In
             </button>
+
+            <!-- Inside your login form, after the submit button -->
+            <a href="{% url 'users:password_reset' %}" 
+                style="display:block; text-align:center; margin-top:1rem; 
+                    font-size:0.82rem; color:var(--muted); text-decoration:none;">
+                Forgot your password?
+            </a>
         </form>
         
         <!-- FOOTER -->

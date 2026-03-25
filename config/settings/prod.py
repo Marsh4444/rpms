@@ -1,4 +1,5 @@
 from .base import *
+from decouple import config
 # Import all base settings
 # Then override with production-specific ones
 
@@ -47,3 +48,53 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # - Security features that aren't needed locally
 # - Performance optimizations (compression, caching)
 # - Different static file serving strategy
+
+# CACHE CONFIGURATION - PRODUCTION
+# ============================================================================
+# In production, use Redis for proper distributed rate limiting
+# Install: pip install redis django-redis
+# ============================================================================
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': config('REDIS_URL', default='redis://127.0.0.1:6379/1'),
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         }
+#     }
+# }
+
+# ============================================================================
+# EMAIL BACKEND - PRODUCTION (Phase 17)
+# ============================================================================
+# Real email sending via SMTP (Gmail, SendGrid, etc.)
+# ============================================================================
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='RPMS <noreply@rpms.com>')
+
+# ============================================================================
+# SESSION & COOKIE SECURITY - PRODUCTION (Phase 17)
+# ============================================================================
+# HTTPS-only cookies and session protection
+# ============================================================================
+
+SESSION_COOKIE_SECURE = True  # Requires HTTPS
+CSRF_COOKIE_SECURE = True     # Requires HTTPS
+
+# ============================================================================
+# HTTPS ENFORCEMENT - PRODUCTION (Phase 17)
+# ============================================================================
+# Redirect all HTTP to HTTPS
+# ============================================================================
+
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
