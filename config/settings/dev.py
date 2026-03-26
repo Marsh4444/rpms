@@ -62,7 +62,7 @@ INSTALLED_APPS += [
 
 # EMAIL BACKEND - DEVELOPMENT (Phase 17)
 # ============================================================================
-# Prints emails to terminal instead of sending them
+# Prints emails terminal instead of sending them
 # Perfect for testing password reset without real email server
 # ============================================================================
 
