@@ -1,43 +1,157 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}
-    {% if form.instance.pk %}Update Request{% else %}Submit Request{% endif %} — RPMS
+    {% if form.instance.pk %}Update Request{% else %}Submit Maintenance Request{% endif %} — RPMS
+{% endblock %}
+
+{% block extra_css %}
+{# ✅ FIX 1: Actually load the CSS — the old template never did this #}
+<link rel="stylesheet" href="{% static 'css/maintenance.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 600px;">
-    
-    <h1>{% if form.instance.pk %}Update Status{% else %}Submit Maintenance Request{% endif %}</h1>
-    
-    <form method="post" class="form-card">
-        {% csrf_token %}
-        
-        {% if form.non_field_errors %}
-        <div class="alert alert-danger">
-            {{ form.non_field_errors }}
-        </div>
-        {% endif %}
-        
-        {% for field in form %}
-        <div class="form-group">
-            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-                <span class="field-error">{{ field.errors.0 }}</span>
-            {% endif %}
-            {% if field.help_text %}
-                <span class="field-help">{{ field.help_text }}</span>
-            {% endif %}
-        </div>
-        {% endfor %}
-        
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
-                {% if form.instance.pk %}Update Status{% else %}Submit Request{% endif %}
-            </button>
-            <a href="{% url 'maintenance:list' %}" class="btn btn-secondary">Cancel</a>
-        </div>
-    </form>
-    
+
+{# ── PAGE HEADER ─────────────────────────────────────────────── #}
+<div class="page-header">
+    <div class="page-header-text">
+        <h1>{% if form.instance.pk %}Update Request{% else %}Submit Maintenance Request{% endif %}</h1>
+        <p>{% if form.instance.pk %}Editing request #{{ form.instance.pk }}{% else %}Report a new maintenance issue{% endif %}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'maintenance:list' %}" class="btn btn-secondary">← Cancel</a>
+    </div>
 </div>
+
+<div class="form-container">
+
+    {# Non-field errors #}
+    {% if form.non_field_errors %}
+    <div class="form-errors">
+        <strong>Please fix the following:</strong>
+        <ul>
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {# ── SECTION 1: LOCATION ─────────────────────────────── #}
+        <div class="form-section">
+            <div class="form-section-header">
+                <h2>01 — Location</h2>
+            </div>
+            <div class="form-section-body single-col">
+
+                <div class="form-group">
+                    <label for="{{ form.unit.id_for_label }}">Affected Unit</label>
+                    {# ✅ FIX 2: Render manually with form-input class, not {{ field }} #}
+                    <select name="{{ form.unit.html_name }}"
+                            id="{{ form.unit.id_for_label }}"
+                            class="form-input {% if form.unit.errors %}error{% endif %}">
+                        <option value="">— Select a unit —</option>
+                        {% for value, label in form.unit.field.choices %}
+                            {% if value %}
+                            <option value="{{ value }}"
+                                {% if form.unit.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.unit.errors %}
+                        <ul class="field-errors">
+                            {% for e in form.unit.errors %}<li>{{ e }}</li>{% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        {# ── SECTION 2: ISSUE DETAILS ────────────────────────── #}
+        <div class="form-section">
+            <div class="form-section-header">
+                <h2>02 — Issue Details</h2>
+            </div>
+            <div class="form-section-body">
+
+                <div class="form-group full-width">
+                    <label for="{{ form.title.id_for_label }}">Issue Title</label>
+                    <input type="text"
+                           name="{{ form.title.html_name }}"
+                           id="{{ form.title.id_for_label }}"
+                           value="{{ form.title.value|default:'' }}"
+                           placeholder="e.g. Leaking pipe in bathroom"
+                           class="form-input {% if form.title.errors %}error{% endif %}">
+                    {% if form.title.errors %}
+                        <ul class="field-errors">
+                            {% for e in form.title.errors %}<li>{{ e }}</li>{% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="{{ form.description.id_for_label }}">Description</label>
+                    <textarea name="{{ form.description.html_name }}"
+                              id="{{ form.description.id_for_label }}"
+                              rows="5"
+                              placeholder="Describe the issue in detail..."
+                              class="form-input {% if form.description.errors %}error{% endif %}">{{ form.description.value|default:'' }}</textarea>
+                    {% if form.description.errors %}
+                        <ul class="field-errors">
+                            {% for e in form.description.errors %}<li>{{ e }}</li>{% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.priority.id_for_label }}">Priority Level</label>
+                    <select name="{{ form.priority.html_name }}"
+                            id="{{ form.priority.id_for_label }}"
+                            class="form-input">
+                        {% for value, label in form.priority.field.choices %}
+                            <option value="{{ value }}"
+                                {% if form.priority.value == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small style="color: var(--muted); font-size: 0.72rem;">
+                        Choose EMERGENCY only for urgent safety hazards.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.image.id_for_label }}">
+                        Attach Photo
+                        <span style="color:var(--muted); font-size:0.65rem;">(optional)</span>
+                    </label>
+                    <input type="file"
+                           name="{{ form.image.html_name }}"
+                           id="{{ form.image.id_for_label }}"
+                           accept="image/*"
+                           class="form-input">
+                    <small style="color: var(--muted); font-size: 0.72rem;">
+                        A photo helps the manager assess the issue faster.
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'maintenance:list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    {% if form.instance.pk %}Update Request{% else %}Submit Request{% endif %}
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
 {% endblock %}

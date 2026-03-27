@@ -54,13 +54,13 @@ def login_view(request):
             request,
             'Too many login attempts. Please wait a minute and try again.'
         )
-        return render(request, 'users/login.html', {'form_blocked': True})
+        return render(request, 'registration/login.html', {'form_blocked': True})
     
     # GET request - show form
     if request.method == 'GET':
         if request.user.is_authenticated:
             return redirect('home')
-        return render(request, 'users/login.html')
+        return render(request, 'registration/login.html')
     
     # POST request - handle login
     if request.method == 'POST':
@@ -69,8 +69,7 @@ def login_view(request):
         
         if not username or not password:
             messages.error(request, 'Please enter both username and password.')
-            return render(request, 'users/login.html')
-        
+            return render(request, 'registration/login.html')
         # Authenticate user
         user = authenticate(request, username=username, password=password)
         
@@ -97,7 +96,7 @@ def login_view(request):
                 request,
                 'Invalid username or password. Please try again.'
             )
-            return render(request, 'users/login.html', {'username': username})
+            return render(request, 'registration/login.html', {'username': username})
 
 
 # ============================================================================

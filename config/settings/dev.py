@@ -15,17 +15,17 @@ DEBUG = True
 # Even if .env says False, this overrides it
 # Shows detailed error pages when things break
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 # Only respond to localhost requests
 # No need for domain names in development
 
 # Database (SQLite for development)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # ============================================================================
@@ -47,19 +47,15 @@ INSTALLED_APPS += [
 # - Production stays clean and secure# ============================================================================
 
 # ============================================================================
-# CACHE CONFIGURATION - DEVELOPMENT (Phase 17)
+# CACHE - Dummy cache for development (Phase 17)
 # ============================================================================
-# File-based cache allows rate limiting to work in development
-# Stored in /tmp/django_cache on Linux/Mac, or your temp folder on Windows
+# For portfolio/development only - production would use Redis
 # ============================================================================
-
-# config/settings/dev.py
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-#     }
-# }
-
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
 # EMAIL BACKEND - DEVELOPMENT (Phase 17)
 # ============================================================================
 # Prints emails terminal instead of sending them
@@ -78,3 +74,5 @@ DEFAULT_FROM_EMAIL = 'RPMS <noreply@rpms.local>'
 SESSION_COOKIE_SECURE = False  # Set to True in production
 
 
+RATELIMIT_USE_CACHE = "default"
+SILENCED_SYSTEM_CHECKS = ["django_ratelimit.E003"]

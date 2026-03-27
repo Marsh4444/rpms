@@ -11,6 +11,7 @@
     
     <!-- Base CSS -->
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/maintenance.css' %}">
     
     <!-- Page-specific CSS -->
     {% block extra_css %}
@@ -30,7 +31,7 @@
                     <a href="{% url 'property_list' %}" class="nav-link">Properties</a>
                     <a href="{% url 'lease_list' %}" class="nav-link">Leases</a>
                     <a href="{% url 'payment_list' %}" class="nav-link">Payments</a>
-                    <a href="#" class="nav-link">Maintenance</a>
+                    <a href="{% url 'maintenance:list' %}" class="nav-link">Maintenance</a>
 
                     <!-- Profile Dropdown -->
                     <div class="profile-dropdown">

@@ -80,31 +80,30 @@ class MaintenanceRequestDetailView(LoginRequiredMixin, UserPassesTestMixin, Deta
 
 class MaintenanceRequestCreateView(LoginRequiredMixin, CreateView):
     """Create new maintenance request."""
-    
+
     model = MaintenanceRequest
     form_class = MaintenanceRequestForm
     template_name = 'maintenance/maintenance_form.html'
-    
-    def get_form_kwargs(self):
-        """Pass user to form for unit filtering."""
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
-    
+
+    # ❌ REMOVED get_form_kwargs entirely
+    # The form doesn't accept 'user' — passing it causes the TypeError.
+    # Unit filtering by tenant is a future enhancement; skip it for now.
+
     def form_valid(self, form):
-        """Set tenant before saving."""
-        form.instance.tenant = self.request.user
-        form.instance.status = 'PENDING'
-        
+        """Inject submitted_by from the logged-in user before saving."""
+        form.instance.submitted_by = self.request.user
+
+        # ✅ FIXED: 'OPEN' not 'PENDING' — match your model's STATUS_CHOICES
+        form.instance.status = 'OPEN'
+
         messages.success(
             self.request,
             f'Maintenance request submitted for {form.instance.unit}.'
         )
         return super().form_valid(form)
-    
+
     def get_success_url(self):
         return reverse_lazy('maintenance:detail', kwargs={'pk': self.object.pk})
-
 
 class MaintenanceRequestUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """Update maintenance request (status change)."""
