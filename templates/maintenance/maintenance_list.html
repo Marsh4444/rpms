@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Maintenance Requests — RPMS{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Header -->
+    <div class="page-header">
+        <h1>Maintenance Requests</h1>
+        <a href="{% url 'maintenance:create' %}" class="btn btn-primary">+ Submit Request</a>
+    </div>
+
+    <!-- Stats Strip -->
+    <div class="stats-strip">
+        <div class="stat-card">
+            <span class="stat-value">{{ pending_count }}</span>
+            <span class="stat-label">Open</span>
+            {# ← Your model uses 'OPEN', not 'PENDING' #}
+        </div>
+        <div class="stat-card">
+            <span class="stat-value">{{ in_progress_count }}</span>
+            <span class="stat-label">In Progress</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value">{{ resolved_count }}</span>
+            <span class="stat-label">Resolved</span>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    {# Your STATUS_CHOICES are: OPEN, IN_PROGRESS, RESOLVED, CLOSED — not PENDING #}
+    <div class="filter-bar">
+        <a href="{% url 'maintenance:list' %}"
+           class="filter-btn {% if not current_status %}active{% endif %}">
+            All
+        </a>
+        <a href="?status=OPEN"
+           class="filter-btn {% if current_status == 'OPEN' %}active{% endif %}">
+            Open
+        </a>
+        <a href="?status=IN_PROGRESS"
+           class="filter-btn {% if current_status == 'IN_PROGRESS' %}active{% endif %}">
+            In Progress
+        </a>
+        <a href="?status=RESOLVED"
+           class="filter-btn {% if current_status == 'RESOLVED' %}active{% endif %}">
+            Resolved
+        </a>
+        <a href="?status=CLOSED"
+           class="filter-btn {% if current_status == 'CLOSED' %}active{% endif %}">
+            Closed
+        </a>
+    </div>
+
+    <!-- Requests List -->
+    {% if requests %}
+        <div class="requests-grid">
+            {% for req in requests %}
+            <div class="request-card">
+
+                <!-- Status Bar -->
+                <div class="status-bar status-{{ req.status|lower }}"></div>
+
+                <div class="request-content">
+
+                    <!-- Priority Badge -->
+                    <span class="priority-badge priority-{{ req.priority|lower }}">
+                        {{ req.priority_display_with_emoji }}
+                        {# ← Uses the method on your model that adds emoji #}
+                    </span>
+
+                    <!-- Title (replaces the old issue_type that doesn't exist) -->
+                    <h3>{{ req.title }}</h3>
+
+                    <!-- Unit Info -->
+                    <p class="unit-info">
+                        {{ req.unit.property.name }} — Unit {{ req.unit.unit_number }}
+                    </p>
+
+                    <!-- Description Preview -->
+                    <p class="description-preview">
+                        {{ req.description|truncatewords:15 }}
+                    </p>
+
+                    <!-- Overdue Warning (uses your model's is_overdue method) -->
+                    {% if req.is_overdue %}
+                        <span class="overdue-badge">⚠️ Overdue</span>
+                    {% endif %}
+
+                    <!-- Submitted By -->
+                    <p class="submitted-by">
+                        Submitted by: {{ req.submitted_by.get_full_name|default:req.submitted_by.username }}
+                    </p>
+
+                    <!-- Meta -->
+                    <div class="request-meta">
+                        <span>{{ req.created_at|date:"M d, Y" }}</span>
+                        <span class="status-label">
+                            {{ req.get_status_badge }} {{ req.get_status_display }}
+                            {# ← Uses the get_status_badge method on your model #}
+                        </span>
+                    </div>
+
+                    <!-- Action -->
+                    <a href="{% url 'maintenance:detail' req.pk %}" class="btn btn-secondary btn-sm">
+                        View Details →
+                    </a>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="page-link">← Previous</a>
+            {% endif %}
+
+            <span class="page-current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    {% else %}
+        <div class="empty-state">
+            <p class="empty-icon">🔧</p>
+            <h3>No Maintenance Requests</h3>
+            <p>No requests found. Submit one to get started.</p>
+            <a href="{% url 'maintenance:create' %}" class="btn btn-primary">+ Submit Request</a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

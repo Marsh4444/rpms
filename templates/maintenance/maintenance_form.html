@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}Update Request{% else %}Submit Request{% endif %} — RPMS
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px;">
+    
+    <h1>{% if form.instance.pk %}Update Status{% else %}Submit Maintenance Request{% endif %}</h1>
+    
+    <form method="post" class="form-card">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+        
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+                <span class="field-error">{{ field.errors.0 }}</span>
+            {% endif %}
+            {% if field.help_text %}
+                <span class="field-help">{{ field.help_text }}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {% if form.instance.pk %}Update Status{% else %}Submit Request{% endif %}
+            </button>
+            <a href="{% url 'maintenance:list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+    
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Request #{{ request.pk }} — RPMS{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+    <!-- Back Link -->
+    <a href="{% url 'maintenance:list' %}" class="back-link">← Back to Requests</a>
+    
+    <!-- Header -->
+    <div class="detail-header">
+        <div>
+            <h1>{{ request.get_issue_type_display }}</h1>
+            <p class="detail-subtitle">Request #{{ request.pk }}</p>
+        </div>
+        <div class="detail-actions">
+            {% if request.status != 'RESOLVED' %}
+                <a href="{% url 'maintenance:update' request.pk %}" class="btn btn-secondary">
+                    Update Status
+                </a>
+            {% endif %}
+            <a href="{% url 'maintenance:delete' request.pk %}" class="btn btn-danger">
+                Delete
+            </a>
+        </div>
+    </div>
+    
+    <!-- Status & Priority -->
+    <div class="badges">
+        <span class="status-badge status-{{ request.status|lower }}">
+            {{ request.get_status_display }}
+        </span>
+        <span class="priority-badge priority-{{ request.priority|lower }}">
+            {{ request.get_priority_display }} Priority
+        </span>
+    </div>
+    
+    <!-- Details Grid -->
+    <div class="details-grid">
+        
+        <!-- Left Column -->
+        <div class="details-section">
+            <h3>Request Details</h3>
+            
+            <div class="detail-row">
+                <span class="detail-label">Issue Type</span>
+                <span class="detail-value">{{ request.get_issue_type_display }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Priority</span>
+                <span class="detail-value">{{ request.get_priority_display }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Status</span>
+                <span class="detail-value">{{ request.get_status_display }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Submitted</span>
+                <span class="detail-value">{{ request.created_at|date:"F d, Y g:i A" }}</span>
+            </div>
+            
+            {% if request.resolved_at %}
+            <div class="detail-row">
+                <span class="detail-label">Resolved</span>
+                <span class="detail-value">{{ request.resolved_at|date:"F d, Y g:i A" }}</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Right Column -->
+        <div class="details-section">
+            <h3>Property Information</h3>
+            
+            <div class="detail-row">
+                <span class="detail-label">Property</span>
+                <span class="detail-value">{{ request.unit.property.name }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Unit</span>
+                <span class="detail-value">{{ request.unit.unit_number }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Tenant</span>
+                <span class="detail-value">{{ request.tenant.get_full_name|default:request.tenant.username }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Description -->
+    <div class="description-section">
+        <h3>Description</h3>
+        <p>{{ request.description }}</p>
+    </div>
+    
+    <!-- Notes -->
+    {% if request.notes %}
+    <div class="notes-section">
+        <h3>Additional Notes</h3>
+        <p>{{ request.notes }}</p>
+    </div>
+    {% endif %}
+    
+</div>
+{% endblock %}
