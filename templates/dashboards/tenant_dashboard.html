@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Dashboard — RPMS{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+    <h1 class="page-title">My Dashboard</h1>
+    
+    {% if current_lease %}
+    
+    <!-- Lease Info Card -->
+    <div class="lease-card">
+        <div class="lease-header">
+            <h2>{{ current_lease.unit.property.name }}</h2>
+            <span class="lease-badge">Active Lease</span>
+        </div>
+        <div class="lease-details">
+            <div class="lease-detail-item">
+                <span class="detail-label">Unit</span>
+                <span class="detail-value">{{ current_lease.unit.unit_number }}</span>
+            </div>
+            <div class="lease-detail-item">
+                <span class="detail-label">Monthly Rent</span>
+                <span class="detail-value">₦{{ current_lease.monthly_rent|floatformat:0|intcomma }}</span>
+            </div>
+            <div class="lease-detail-item">
+                <span class="detail-label">Lease Period</span>
+                <span class="detail-value">{{ current_lease.start_date|date:"M d, Y" }} - {{ current_lease.end_date|date:"M d, Y" }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Status -->
+    <div class="payment-status">
+        {% if current_month_paid %}
+        <div class="status-card status-card-success">
+            <div class="status-icon">✅</div>
+            <div class="status-content">
+                <h3>Payment Up to Date</h3>
+                <p>Your rent for this month has been paid. Thank you!</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="status-card status-card-warning">
+            <div class="status-icon">⚠️</div>
+            <div class="status-content">
+                <h3>Payment Due</h3>
+                <p>₦{{ next_payment_due|floatformat:0|intcomma }} due by {{ due_date|date:"F d, Y" }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Stats -->
+    <div class="tenant-stats">
+        <div class="stat-card">
+            <div class="stat-value">₦{{ total_paid|floatformat:0|intcomma }}</div>
+            <div class="stat-label">Total Paid</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ payment_count }}</div>
+            <div class="stat-label">Payments Made</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ pending_maintenance }}</div>
+            <div class="stat-label">Pending Requests</div>
+        </div>
+    </div>
+    
+    <!-- Two Columns -->
+    <div class="dashboard-columns">
+        
+        <!-- Payment History -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Payment History</h2>
+            </div>
+            
+            {% if payment_history %}
+            <div class="list-items">
+                {% for payment in payment_history %}
+                <div class="list-item">
+                    <div class="list-item-main">
+                        <div class="list-item-title">{{ payment.payment_month|date:"F Y" }}</div>
+                        <div class="list-item-subtitle">{{ payment.payment_status }}</div>
+                    </div>
+                    <div class="list-item-side">
+                        <div class="list-item-amount">₦{{ payment.amount|floatformat:0|intcomma }}</div>
+                        <div class="list-item-date">{{ payment.payment_date|date:"M d, Y" }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-text">No payments recorded yet.</p>
+            {% endif %}
+        </div>
+        
+        <!-- Maintenance Requests -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Maintenance Requests</h2>
+                <a href="{% url 'maintenance:create' %}" class="section-link">Submit →</a>
+            </div>
+            
+            {% if maintenance_requests %}
+            <div class="list-items">
+                {% for req in maintenance_requests %}
+                <div class="list-item">
+                    <div class="list-item-main">
+                        <div class="list-item-title">{{ req.get_issue_type_display }}</div>
+                        <div class="list-item-subtitle">{{ req.get_status_display }}</div>
+                    </div>
+                    <div class="list-item-side">
+                        <span class="status-badge status-{{ req.status|lower }}">{{ req.get_priority_display }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-text">No maintenance requests.</p>
+            {% endif %}
+        </div>
+        
+    </div>
+    
+    {% else %}
+    
+    <!-- No Active Lease -->
+    <div class="empty-state">
+        <div class="empty-icon">🏠</div>
+        <h3>No Active Lease</h3>
+        <p>You don't have an active lease at the moment.</p>
+    </div>
+    
+    {% endif %}
+    
+</div>
+{% endblock %}

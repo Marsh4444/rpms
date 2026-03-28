@@ -11,6 +11,15 @@ from django.views.decorators.http import require_http_methods
 from .forms import UserRegistrationForm
 from django_ratelimit.decorators import ratelimit
 from .models import User
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Sum, Count, Q
+from django.utils import timezone
+from datetime import date
+from apps.properties.models import Property, Unit
+from apps.leases.models import Lease
+from apps.payments.models import Payment
+from apps.maintenance.models import MaintenanceRequest
 
 
 # ============================================================================
@@ -90,7 +99,13 @@ def login_view(request):
             if next_url and next_url.startswith('/'):
                 return redirect(next_url)
             
-            return redirect('home')
+            # In your login_view, after successful login:
+            if user.role == 'LANDLORD':
+                return redirect('users:landlord_dashboard')
+            elif user.role == 'TENANT':
+                return redirect('users:tenant_dashboard')
+            else:
+                return redirect('home')
         else:
             messages.error(
                 request,
@@ -239,3 +254,121 @@ def profile_edit_view(request):
         return redirect('profile')
     
     return render(request, 'users/profile_edit.html', {'user': request.user})
+
+class LandlordDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    """Dashboard for landlords with property overview and stats."""
+    
+    template_name = 'dashboards/landlord_dashboard.html'
+    
+    def test_func(self):
+        return self.request.user.role == 'LANDLORD'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        # Properties & Units
+        context['total_properties'] = Property.objects.filter(owner=user).count()
+        context['total_units'] = Unit.objects.filter(property__owner=user).count()
+        context['occupied_units'] = Unit.objects.filter(property__owner=user, is_occupied=True).count()
+        
+        # Calculate occupancy rate
+        if context['total_units'] > 0:
+            context['occupancy_rate'] = round((context['occupied_units'] / context['total_units']) * 100, 1)
+        else:
+            context['occupancy_rate'] = 0
+        
+        # Financial stats
+        all_payments = Payment.objects.filter(lease__unit__property__owner=user)
+        context['total_revenue'] = all_payments.aggregate(Sum('amount'))['amount__sum'] or 0
+        
+        this_month = date.today().replace(day=1)
+        context['this_month_revenue'] = all_payments.filter(
+            payment_month=this_month
+        ).aggregate(Sum('amount'))['amount__sum'] or 0
+        
+        # Leases
+        context['active_leases'] = Lease.objects.filter(
+            unit__property__owner=user,
+            status='ACTIVE'
+        ).count()
+        
+        # Overdue payments
+        active_leases = Lease.objects.filter(
+            unit__property__owner=user,
+            status='ACTIVE'
+        ).select_related('tenant', 'unit__property')
+        
+        overdue = []
+        for lease in active_leases:
+            if not lease.payments.filter(payment_month=this_month).exists():
+                overdue.append({
+                    'tenant': lease.tenant,
+                    'unit': lease.unit,
+                    'amount': lease.monthly_rent
+                })
+        context['overdue_payments'] = overdue
+        context['overdue_count'] = len(overdue)
+        
+        # Recent payments
+        context['recent_payments'] = all_payments.select_related(
+            'lease__tenant', 'lease__unit__property'
+        ).order_by('-payment_date')[:5]
+        
+        # Maintenance requests
+        context['pending_maintenance'] = MaintenanceRequest.objects.filter(
+            unit__property__owner=user,
+            status='PENDING'
+        ).count()
+        
+        return context
+
+
+class TenantDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    """Dashboard for tenants showing their lease and payment info."""
+    
+    template_name = 'dashboards/tenant_dashboard.html'
+    
+    def test_func(self):
+        return self.request.user.role == 'TENANT'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        # Current lease
+        context['current_lease'] = Lease.objects.filter(
+            tenant=user,
+            status='ACTIVE'
+        ).select_related('unit__property').first()
+        
+        if context['current_lease']:
+            lease = context['current_lease']
+            
+            # Payment stats
+            context['total_paid'] = lease.payments.aggregate(Sum('amount'))['amount__sum'] or 0
+            context['payment_count'] = lease.payments.count()
+            
+            # Check current month payment
+            this_month = date.today().replace(day=1)
+            context['current_month_paid'] = lease.payments.filter(payment_month=this_month).exists()
+            
+            # Payment history
+            context['payment_history'] = lease.payments.order_by('-payment_date')[:10]
+            
+            # Next payment due
+            if not context['current_month_paid']:
+                context['next_payment_due'] = lease.monthly_rent
+                context['due_date'] = this_month.replace(day=5)
+        
+        # Maintenance requests
+        context['maintenance_requests'] = MaintenanceRequest.objects.filter(
+            tenant=user
+        ).select_related('unit__property').order_by('-created_at')[:5]
+        
+        context['pending_maintenance'] = MaintenanceRequest.objects.filter(
+            tenant=user,
+            status='PENDING'
+        ).count()
+        
+        return context

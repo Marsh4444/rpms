@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Dashboard — RPMS{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+    <h1 class="page-title">Dashboard</h1>
+    
+    <!-- Stats Grid -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-value">{{ total_properties }}</div>
+            <div class="stat-label">Properties</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🏠</div>
+            <div class="stat-value">{{ occupied_units }}/{{ total_units }}</div>
+            <div class="stat-label">Units Occupied</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">{{ occupancy_rate }}%</div>
+            <div class="stat-label">Occupancy Rate</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📄</div>
+            <div class="stat-value">{{ active_leases }}</div>
+            <div class="stat-label">Active Leases</div>
+        </div>
+    </div>
+    
+    <!-- Revenue Cards -->
+    <div class="revenue-grid">
+        <div class="revenue-card">
+            <h3>Total Revenue</h3>
+            <div class="revenue-amount">₦{{ total_revenue|floatformat:0|intcomma }}</div>
+            <p class="revenue-label">All-time collected</p>
+        </div>
+        
+        <div class="revenue-card">
+            <h3>This Month</h3>
+            <div class="revenue-amount">₦{{ this_month_revenue|floatformat:0|intcomma }}</div>
+            <p class="revenue-label">Current month revenue</p>
+        </div>
+        
+        <div class="revenue-card {% if overdue_count > 0 %}revenue-card-warning{% endif %}">
+            <h3>Overdue</h3>
+            <div class="revenue-amount">{{ overdue_count }}</div>
+            <p class="revenue-label">Unpaid this month</p>
+        </div>
+        
+        <div class="revenue-card {% if pending_maintenance > 0 %}revenue-card-info{% endif %}">
+            <h3>Maintenance</h3>
+            <div class="revenue-amount">{{ pending_maintenance }}</div>
+            <p class="revenue-label">Pending requests</p>
+        </div>
+    </div>
+    
+    <!-- Two Column Layout -->
+    <div class="dashboard-columns">
+        
+        <!-- Left Column: Recent Payments -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Recent Payments</h2>
+                <a href="{% url 'payment_list' %}" class="section-link">View All →</a>
+            </div>
+            
+            {% if recent_payments %}
+            <div class="list-items">
+                {% for payment in recent_payments %}
+                <div class="list-item">
+                    <div class="list-item-main">
+                        <div class="list-item-title">{{ payment.lease.tenant.get_full_name|default:payment.lease.tenant.username }}</div>
+                        <div class="list-item-subtitle">{{ payment.lease.unit.property.name }} — Unit {{ payment.lease.unit.unit_number }}</div>
+                    </div>
+                    <div class="list-item-side">
+                        <div class="list-item-amount">₦{{ payment.amount|floatformat:0|intcomma }}</div>
+                        <div class="list-item-date">{{ payment.payment_date|date:"M d" }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-text">No payments recorded yet.</p>
+            {% endif %}
+        </div>
+        
+        <!-- Right Column: Overdue Payments -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Overdue This Month</h2>
+            </div>
+            
+            {% if overdue_payments %}
+            <div class="list-items">
+                {% for item in overdue_payments %}
+                <div class="list-item list-item-warning">
+                    <div class="list-item-main">
+                        <div class="list-item-title">{{ item.tenant.get_full_name|default:item.tenant.username }}</div>
+                        <div class="list-item-subtitle">{{ item.unit.property.name }} — Unit {{ item.unit.unit_number }}</div>
+                    </div>
+                    <div class="list-item-side">
+                        <div class="list-item-amount">₦{{ item.amount|floatformat:0|intcomma }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-text">✅ All payments up to date!</p>
+            {% endif %}
+        </div>
+        
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h3>Quick Actions</h3>
+        <div class="action-buttons">
+            <a href="{% url 'property_create' %}" class="action-btn">
+                <span class="action-icon">🏢</span>
+                <span class="action-text">Add Property</span>
+            </a>
+            <a href="{% url 'lease_create' %}" class="action-btn">
+                <span class="action-icon">📄</span>
+                <span class="action-text">New Lease</span>
+            </a>
+            <a href="{% url 'payment_create' %}" class="action-btn">
+                <span class="action-icon">💳</span>
+                <span class="action-text">Record Payment</span>
+            </a>
+            <a href="{% url 'maintenance:list' %}" class="action-btn">
+                <span class="action-icon">🔧</span>
+                <span class="action-text">Maintenance</span>
+            </a>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}

@@ -1,0 +1,337 @@
+/* Dashboard Stats Grid */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Revenue Grid */
+.revenue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.revenue-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+}
+
+.revenue-card h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+}
+
+.revenue-amount {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.revenue-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.revenue-card-warning {
+    border-color: #F59E0B;
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.revenue-card-info {
+    border-color: #3B82F6;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+/* Dashboard Columns */
+.dashboard-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.dashboard-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.section-header h2 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text);
+}
+
+.section-link {
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: none;
+}
+
+/* List Items */
+.list-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+}
+
+.list-item-warning {
+    border-left: 3px solid #F59E0B;
+}
+
+.list-item-main {
+    flex: 1;
+}
+
+.list-item-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+}
+
+.list-item-subtitle {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.list-item-side {
+    text-align: right;
+}
+
+.list-item-amount {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+}
+
+.list-item-date {
+    font-size: 0.7rem;
+    color: var(--muted);
+}
+
+/* Quick Actions */
+.quick-actions {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+}
+
+.quick-actions h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background: var(--surface2);
+    border-color: var(--accent);
+}
+
+.action-icon {
+    font-size: 2rem;
+}
+
+.action-text {
+    font-size: 0.85rem;
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* Tenant Dashboard */
+.lease-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.lease-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.lease-badge {
+    padding: 0.5rem 1rem;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.lease-details {
+    display: grid;
+    gap: 1rem;
+}
+
+.lease-detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+}
+
+.detail-label {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.detail-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Payment Status */
+.payment-status {
+    margin-bottom: 1.5rem;
+}
+
+.status-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border-radius: 4px;
+    border: 1px solid;
+}
+
+.status-card-success {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: #10B981;
+}
+
+.status-card-warning {
+    background: rgba(245, 158, 11, 0.05);
+    border-color: #F59E0B;
+}
+
+.status-icon {
+    font-size: 2.5rem;
+}
+
+.status-content h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+}
+
+.status-content p {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.tenant-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .dashboard-stats,
+    .revenue-grid,
+    .action-buttons,
+    .tenant-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .dashboard-columns {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-stats,
+    .revenue-grid,
+    .tenant-stats {
+        grid-template-columns: 1fr;
+    }
+}
