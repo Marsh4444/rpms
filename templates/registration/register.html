@@ -35,7 +35,7 @@
         {% endif %}
         
         <!-- REGISTER FORM -->
-        <form method="post" action="{% url 'register' %}">
+        <form method="post" action="{% url 'users:register' %}">
             {% csrf_token %}
             
             <!-- Username Field -->
@@ -145,7 +145,7 @@
         <div class="auth-footer">
             <p class="auth-footer-text">
                 Already have an account? 
-                <a href="{% url 'login' %}" class="auth-footer-link">Sign in here</a>
+                <a href="{% url 'users:login' %}" class="auth-footer-link">Sign in here</a>
             </p>
         </div>
     </div>

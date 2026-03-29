@@ -2,6 +2,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 
+app_name = 'users'
 
 
 urlpatterns = [
@@ -51,5 +52,9 @@ urlpatterns = [
         ),
         name='password_reset_complete'
     ),
+
+    # Dashboards
+    path('dashboard/landlord/', views.LandlordDashboardView.as_view(), name='landlord_dashboard'),
+    path('dashboard/tenant/', views.TenantDashboardView.as_view(), name='tenant_dashboard'),
 
 ]

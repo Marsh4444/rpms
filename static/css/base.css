@@ -334,3 +334,109 @@ body {
 .profile-menu-item span {
     font-size: 1rem;
 }
+
+/* ========================================
+   MISSING BUTTON VARIANTS
+   ======================================== */
+.btn-danger {
+    background: var(--danger);
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #c94f4f;
+    color: #fff;
+}
+
+.btn-success {
+    background: var(--success);
+    color: #0a0c0f;
+}
+
+.btn-success:hover {
+    background: #3bc76e;
+    color: #0a0c0f;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.7rem;
+}
+
+/* ========================================
+   MOBILE NAVBAR (hamburger)
+   ======================================== */
+.navbar-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+}
+
+.navbar-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--muted);
+    transition: all 0.3s;
+    border-radius: 2px;
+}
+
+.navbar-toggle:hover span {
+    background: var(--accent);
+}
+
+/* When menu is open, animate hamburger to X */
+.navbar-toggle.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.navbar-toggle.open span:nth-child(2) {
+    opacity: 0;
+}
+.navbar-toggle.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+@media (max-width: 768px) {
+    .navbar-toggle {
+        display: flex;
+    }
+
+    .navbar-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem 2rem;
+        gap: 1rem;
+    }
+
+    .navbar-links.open {
+        display: flex;
+    }
+
+    /* Profile dropdown on mobile should open upward or stay accessible */
+    .profile-menu {
+        right: auto;
+        left: 0;
+    }
+}
+
+/* ========================================
+   ALERT — pure CSS fade (no Bootstrap needed)
+   ======================================== */
+.alert {
+    transition: opacity 0.3s ease;
+}
+
+.alert.fade-out {
+    opacity: 0;
+}

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     #third-party apps
     'django_ratelimit',
+    'django.contrib.humanize',
 
 
     #default Django apps

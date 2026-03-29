@@ -9,13 +9,14 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     
-    <!-- Base CSS -->
+    <!-- Base CSS only — maintenance.css moved to maintenance templates -->
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/maintenance.css' %}">
     
-    <!-- Page-specific CSS -->
+
     {% block extra_css %}
-    
+    {# ✅ FIX 1: Actually load the CSS — the old template never did this #}
+    <link rel="stylesheet" href="{% static 'css/maintenance.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     {% endblock %}
 </head>
 <body>
@@ -23,19 +24,56 @@
     <!-- NAVIGATION BAR -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="/" class="navbar-brand">RPMS</a>
+            <a href="{% url 'home' %}" class="navbar-brand">RPMS</a>
             
-            <div class="navbar-links">
+            <!-- Hamburger button (visible on mobile only) -->
+            <button class="navbar-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="navbar-links" id="navLinks">
                 {% if user.is_authenticated %}
-                    <!-- Links for logged-in users -->
-                    <a href="{% url 'property_list' %}" class="nav-link">Properties</a>
-                    <a href="{% url 'lease_list' %}" class="nav-link">Leases</a>
-                    <a href="{% url 'payment_list' %}" class="nav-link">Payments</a>
-                    <a href="{% url 'maintenance:list' %}" class="nav-link">Maintenance</a>
+
+                    <!-- Dashboard — role based -->
+                    {% if user.role == 'LANDLORD' %}
+                        <a href="{% url 'users:landlord_dashboard' %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'landlord_dashboard' %}active{% endif %}">
+                            Dashboard
+                        </a>
+                    {% elif user.role == 'TENANT' %}
+                        <a href="{% url 'users:tenant_dashboard' %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'tenant_dashboard' %}active{% endif %}">
+                            Dashboard
+                        </a>
+                    {% endif %}
+
+                    <!-- Landlord/Manager only links -->
+                    {% if user.role == 'LANDLORD' %}
+                        <a href="{% url 'property_list' %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'property_list' %}active{% endif %}">
+                            Properties
+                        </a>
+                        <a href="{% url 'lease_list' %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'lease_list' %}active{% endif %}">
+                            Leases
+                        </a>
+                        <a href="{% url 'payment_list' %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'payment_list' %}active{% endif %}">
+                            Payments
+                        </a>
+                    {% endif %}
+
+                    <!-- Everyone sees Maintenance -->
+                    <a href="{% url 'maintenance:list' %}"
+                    class="nav-link {% if request.resolver_match.namespace == 'maintenance' %}active{% endif %}">
+                        Maintenance
+                    </a>
 
                     <!-- Profile Dropdown -->
                     <div class="profile-dropdown">
-                        <button class="profile-icon" onclick="toggleProfileMenu()" title="{{ user.get_full_name_or_username }}">
+                        <button class="profile-icon" id="profileToggle" title="{{ user.get_full_name_or_username }}">
                             {% if user.profile_picture %}
                                 <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}">
                             {% else %}
@@ -43,71 +81,49 @@
                             {% endif %}
                         </button>
                         
-                        <!-- Dropdown Menu -->
                         <div class="profile-menu" id="profileMenu">
                             <div class="profile-menu-header">
                                 <div class="profile-menu-name">{{ user.get_full_name_or_username }}</div>
                                 <div class="profile-menu-role">{{ user.get_role_display }}</div>
                             </div>
                             <div class="profile-menu-divider"></div>
-                            <a href="{% url 'profile' %}" class="profile-menu-item">
+                            <a href="{% url 'users:profile' %}" class="profile-menu-item">
                                 <span>👤</span> View Profile
                             </a>
-                            <a href="{% url 'profile_edit' %}" class="profile-menu-item">
+                            <a href="{% url 'users:profile_edit' %}" class="profile-menu-item">
                                 <span>⚙️</span> Edit Profile
                             </a>
                             <div class="profile-menu-divider"></div>
-                            <a href="{% url 'logout' %}" class="profile-menu-item">
+                            <a href="{% url 'users:logout' %}" class="profile-menu-item">
                                 <span>🚪</span> Logout
                             </a>
                         </div>
                     </div>
                 {% else %}
-                    <!-- Links for guests -->
-                    <a href="{% url 'login' %}" class="nav-link">Login</a>
-                    <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
+                    <a href="{% url 'users:login' %}" class="nav-link">Login</a>
+                    <a href="{% url 'users:register' %}" class="btn btn-primary">Register</a>
                 {% endif %}
             </div>
         </div>
     </nav>
-    
+
+    <!-- FLASH MESSAGES -->
     {% if messages %}
     <div class="messages">
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" 
-                 role="alert" 
-                 id="auto-dismiss-alert">
+            <div class="alert alert-{{ message.tags }}">
                 {{ message }}
             </div>
         {% endfor %}
     </div>
-{% endif %}
-
-<!-- Auto dismiss after 2 seconds -->
-<script>
-    setTimeout(function() {
-        let alerts = document.querySelectorAll('.alert');
-        alerts.forEach(function(alert) {
-            // Bootstrap's built-in fade out
-            alert.classList.remove('show');
-            setTimeout(() => alert.remove(), 300); // remove from DOM after fade
-        });
-    }, 1700); // 1700ms = 1.7 seconds
-</script>
+    {% endif %}
     
     <!-- MAIN CONTENT -->
     <main class="main-content">
-        {% block content %}
-        <!-- Child templates inject content here -->
-        {% endblock %}
+        {% block content %}{% endblock %}
     </main>
-    
-    {% block extra_js %}
-    
-    {% endblock %}
 
-    <!-- Bootstrap JS (REQUIRED for alert dismiss to work) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
 
     <!-- FOOTER -->
     <footer class="footer">
@@ -116,7 +132,6 @@
                 Built with <span class="heart">♥</span> by <strong>Marsh</strong>
             </p>
             <div class="footer-socials">
-                <!-- Instagram -->
                 <a href="https://instagram.com/yourhandle" target="_blank" class="social-link" aria-label="Instagram">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
@@ -124,13 +139,11 @@
                         <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle>
                     </svg>
                 </a>
-                <!-- X / Twitter -->
                 <a href="https://x.com/yourhandle" target="_blank" class="social-link" aria-label="X">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                     </svg>
                 </a>
-                <!-- GitHub -->
                 <a href="https://github.com/yourhandle" target="_blank" class="social-link" aria-label="GitHub">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
@@ -140,22 +153,43 @@
         </div>
     </footer>
 
-<!-- Profile Dropdown Script -->
+    <!-- ALL SCRIPTS AT BOTTOM — correct order -->
     <script>
-        function toggleProfileMenu() {
-            const menu = document.getElementById('profileMenu');
-            menu.classList.toggle('show');
+        // ── 1. Auto-dismiss flash messages (pure CSS, no Bootstrap needed) ──
+        setTimeout(function () {
+            document.querySelectorAll('.alert').forEach(function (alert) {
+                alert.classList.add('fade-out');
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 2500);
+
+        // ── 2. Profile dropdown ──
+        const profileToggle = document.getElementById('profileToggle');
+        const profileMenu = document.getElementById('profileMenu');
+
+        if (profileToggle) {
+            profileToggle.addEventListener('click', function (e) {
+                e.stopPropagation(); // prevent document click from immediately closing it
+                profileMenu.classList.toggle('show');
+            });
         }
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.querySelector('.profile-dropdown');
-            const menu = document.getElementById('profileMenu');
-            
-            if (menu && dropdown && !dropdown.contains(event.target)) {
-                menu.classList.remove('show');
+
+        document.addEventListener('click', function (e) {
+            if (profileMenu && !profileMenu.contains(e.target) && e.target !== profileToggle) {
+                profileMenu.classList.remove('show');
             }
         });
+
+        // ── 3. Mobile hamburger ──
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        if (navToggle) {
+            navToggle.addEventListener('click', function () {
+                navToggle.classList.toggle('open');
+                navLinks.classList.toggle('open');
+            });
+        }
     </script>
 
 </body>

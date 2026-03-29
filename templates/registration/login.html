@@ -35,7 +35,7 @@
         {% endif %}
         
         <!-- LOGIN FORM -->
-        <form method="post" action="{% url 'login' %}">
+        <form method="post" action="{% url 'users:login' %}">
             {% csrf_token %}
             
             <!-- Username Field -->
@@ -71,7 +71,7 @@
             </button>
 
             <!-- Inside your login form, after the submit button -->
-            <a href="{% url 'password_reset' %}" 
+            <a href="{% url 'users:password_reset' %}" 
                 style="display:block; text-align:center; margin-top:1rem; 
                     font-size:0.82rem; color:var(--muted); text-decoration:none;">
                 Forgot your password?
@@ -82,7 +82,7 @@
         <div class="auth-footer">
             <p class="auth-footer-text">
                 Don't have an account? 
-                <a href="{% url 'register' %}" class="auth-footer-link">Register here</a>
+                <a href="{% url 'users:register' %}" class="auth-footer-link">Register here</a>
             </p>
         </div>
     </div>
