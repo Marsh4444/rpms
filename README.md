@@ -208,7 +208,7 @@ rpms/
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/yourusername/rpms.git
+git clone https://github.com/Marsh4444/rpms.git
 cd rpms
 
 # 2. Create and activate a virtual environment
